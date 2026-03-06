@@ -5,6 +5,7 @@ struct ChatView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = ChatViewModel()
     @State private var inputText = ""
+    @State private var showModelPicker = false
 
     var body: some View {
         NavigationStack {
@@ -18,6 +19,20 @@ struct ChatView: View {
             .navigationTitle("Hearth AI")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showModelPicker = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "brain")
+                            if inferenceService.isModelLoaded {
+                                Circle()
+                                    .fill(.green)
+                                    .frame(width: 6, height: 6)
+                            }
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.clearMessages()
@@ -26,6 +41,9 @@ struct ChatView: View {
                     }
                     .disabled(viewModel.messages.isEmpty)
                 }
+            }
+            .sheet(isPresented: $showModelPicker) {
+                ModelPickerSheet()
             }
         }
         .onAppear {

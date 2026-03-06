@@ -9,6 +9,9 @@ struct ContentView: View {
             ModelStoreView()
                 .tabItem { Label("Models", systemImage: "square.grid.2x2") }
 
+            LibraryView()
+                .tabItem { Label("Library", systemImage: "internaldrive") }
+
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gear") }
         }
@@ -19,4 +22,5 @@ struct ContentView: View {
     ContentView()
         .environment(AppState())
         .environment(InferenceService())
+        .environment(DownloadService())
 }
