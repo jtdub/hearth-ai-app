@@ -62,6 +62,11 @@ final class ModelStoreViewModel {
         isLoadingFiles[repoId] = false
     }
 
+    func retry() {
+        errorMessage = nil
+        search()
+    }
+
     func clearSearch() {
         searchText = ""
         searchResults = []

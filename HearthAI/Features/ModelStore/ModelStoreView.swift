@@ -24,6 +24,9 @@ struct ModelStoreView: View {
                     Section {
                         Label(error, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
+                        Button("Retry") {
+                            viewModel.retry()
+                        }
                     }
                 } else {
                     searchResultsSection

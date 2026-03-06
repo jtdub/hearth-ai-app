@@ -1,11 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct ChatView: View {
     @Environment(InferenceService.self) private var inferenceService
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ChatViewModel()
     @State private var inputText = ""
     @State private var showModelPicker = false
+    @State private var showConversations = false
+    @State private var showChatSettings = false
 
     var body: some View {
         NavigationStack {
@@ -20,35 +24,93 @@ struct ChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showModelPicker = true
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "brain")
-                            if inferenceService.isModelLoaded {
-                                Circle()
-                                    .fill(.green)
-                                    .frame(width: 6, height: 6)
+                    HStack(spacing: 12) {
+                        Button {
+                            showConversations = true
+                        } label: {
+                            Image(systemName: "list.bullet")
+                        }
+                        Button {
+                            showModelPicker = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "brain")
+                                if inferenceService.isModelLoaded {
+                                    Circle()
+                                        .fill(.green)
+                                        .frame(width: 6, height: 6)
+                                }
                             }
                         }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.clearMessages()
+                    Menu {
+                        Button {
+                            viewModel.newConversation()
+                        } label: {
+                            Label("New Chat", systemImage: "plus")
+                        }
+                        Button {
+                            Task { await viewModel.regenerateLastResponse() }
+                        } label: {
+                            Label("Regenerate", systemImage: "arrow.clockwise")
+                        }
+                        .disabled(!canRegenerate)
+                        Button {
+                            showChatSettings = true
+                        } label: {
+                            Label("Chat Settings", systemImage: "slider.horizontal.3")
+                        }
+                        Divider()
+                        Button(role: .destructive) {
+                            viewModel.clearMessages()
+                        } label: {
+                            Label("Clear Chat", systemImage: "trash")
+                        }
+                        .disabled(viewModel.messages.isEmpty)
                     } label: {
-                        Image(systemName: "trash")
+                        Image(systemName: "ellipsis.circle")
                     }
-                    .disabled(viewModel.messages.isEmpty)
                 }
             }
             .sheet(isPresented: $showModelPicker) {
                 ModelPickerSheet()
             }
+            .sheet(isPresented: $showConversations) {
+                ConversationListView(
+                    onSelect: { viewModel.loadConversation($0) },
+                    onNew: { viewModel.newConversation() },
+                    onDelete: { viewModel.deleteConversation($0) }
+                )
+            }
+            .sheet(isPresented: $showChatSettings) {
+                ChatSettingsSheet(
+                    systemPrompt: viewModel.activeConversation?.systemPrompt
+                        ?? "You are a helpful assistant.",
+                    temperature: viewModel.activeConversation?.temperature
+                        ?? Constants.defaultTemperature,
+                    topP: viewModel.activeConversation?.topP
+                        ?? Constants.defaultTopP,
+                    onSave: { prompt, temp, top in
+                        viewModel.updateConversationSettings(
+                            systemPrompt: prompt,
+                            temperature: temp,
+                            topP: top
+                        )
+                    }
+                )
+            }
         }
         .onAppear {
             viewModel.inferenceService = inferenceService
+            viewModel.thermalMonitor = appState.thermalMonitor
+            viewModel.modelContext = modelContext
         }
+    }
+
+    private var canRegenerate: Bool {
+        viewModel.messages.last?.role == .assistant && !viewModel.isGenerating
     }
 
     // MARK: - Message List
@@ -98,7 +160,7 @@ struct ChatView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             if !inferenceService.isModelLoaded {
-                Text("No model loaded. Visit the Models tab to download one.")
+                Text("No model loaded. Tap the brain icon to select one.")
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .padding(.top, 4)
@@ -137,11 +199,16 @@ struct ChatView: View {
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                         ? .gray : .accentColor)
+                        .foregroundStyle(
+                            inputText.trimmingCharacters(
+                                in: .whitespacesAndNewlines
+                            ).isEmpty ? .gray : .accentColor
+                        )
                 }
-                .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                          || !inferenceService.isModelLoaded)
+                .disabled(
+                    inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    || !inferenceService.isModelLoaded
+                )
             }
         }
         .padding(.horizontal)
@@ -168,4 +235,5 @@ struct ChatView: View {
     ChatView()
         .environment(AppState())
         .environment(InferenceService())
+        .modelContainer(for: [Conversation.self, Message.self], inMemory: true)
 }

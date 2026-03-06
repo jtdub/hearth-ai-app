@@ -29,6 +29,8 @@ struct FeaturedModelDetailView: View {
                     .font(.body)
             }
 
+            memoryWarningSection(fileSize: model.sizeBytes)
+
             Section {
                 if isDownloaded {
                     Label("Downloaded", systemImage: "checkmark.circle.fill")
@@ -36,6 +38,7 @@ struct FeaturedModelDetailView: View {
                 } else if let download = activeDownload {
                     DownloadProgressRow(download: download)
                 } else {
+                    let fit = DeviceCapability.canRunModel(fileSizeBytes: model.sizeBytes)
                     Button {
                         downloadService.startDownload(
                             repoId: model.repoId,
@@ -48,10 +51,34 @@ struct FeaturedModelDetailView: View {
                             systemImage: "arrow.down.circle"
                         )
                     }
+                    .disabled(!fit.canDownload)
                 }
             }
         }
         .navigationTitle(model.displayName)
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private func memoryWarningSection(fileSize: Int64) -> some View {
+        let fit = DeviceCapability.canRunModel(fileSizeBytes: fileSize)
+        if let warning = fit.warningMessage {
+            Section {
+                Label {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(warning)
+                            .font(.caption)
+                        Text("Available: \(DeviceCapability.availableMemoryFormatted)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: fit.canDownload
+                          ? "exclamationmark.triangle"
+                          : "xmark.octagon")
+                        .foregroundStyle(fit.canDownload ? .orange : .red)
+                }
+            }
+        }
     }
 }

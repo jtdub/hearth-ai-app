@@ -4,6 +4,7 @@ import Foundation
 final class ThermalMonitor {
     private(set) var thermalState: ProcessInfo.ThermalState = .nominal
     private(set) var shouldWarnUser = false
+    var onCritical: (() -> Void)?
 
     init() {
         thermalState = ProcessInfo.processInfo.thermalState
@@ -19,6 +20,10 @@ final class ThermalMonitor {
         }
     }
 
+    var isCritical: Bool {
+        thermalState == .critical
+    }
+
     var warningMessage: String? {
         switch thermalState {
         case .serious:
@@ -32,5 +37,8 @@ final class ThermalMonitor {
 
     private func updateWarning() {
         shouldWarnUser = thermalState == .serious || thermalState == .critical
+        if thermalState == .critical {
+            onCritical?()
+        }
     }
 }
