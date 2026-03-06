@@ -2,7 +2,12 @@ import Foundation
 
 extension FileManager {
     static var appSupportDirectory: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        guard let url = FileManager.default.urls(
+            for: .applicationSupportDirectory, in: .userDomainMask
+        ).first else {
+            fatalError("Application Support directory is unavailable")
+        }
+        return url
     }
 
     static var modelsDirectory: URL {

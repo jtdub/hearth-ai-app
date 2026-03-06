@@ -16,9 +16,9 @@ import Testing
 }
 
 @Test func chatViewModelClear() {
-    let vm = ChatViewModel()
-    vm.messages.append(ChatMessage(role: .user, content: "test"))
-    vm.clearMessages()
-    #expect(vm.messages.isEmpty)
-    #expect(vm.streamingText.isEmpty)
+    let viewModel = ChatViewModel()
+    viewModel.messages.append(ChatMessage(role: .user, content: "test"))
+    viewModel.clearMessages()
+    #expect(viewModel.messages.isEmpty)
+    #expect(viewModel.streamingText.isEmpty)
 }

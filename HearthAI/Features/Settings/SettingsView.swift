@@ -15,16 +15,19 @@ struct SettingsView: View {
                 }
 
                 Section("Storage") {
+                    let space = FileManager.availableDiskSpace
                     LabeledContent("Available Space") {
                         Text(ByteCountFormatter.string(
-                            fromByteCount: FileManager.availableDiskSpace,
-                            countStyle: .file
+                            fromByteCount: space, countStyle: .file
                         ))
                     }
                 }
 
                 Section("About") {
-                    LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
+                    let version = Bundle.main.infoDictionary?[
+                        "CFBundleShortVersionString"
+                    ] as? String ?? "1.0"
+                    LabeledContent("Version", value: version)
                     LabeledContent("Powered by", value: "llama.cpp")
                 }
             }
