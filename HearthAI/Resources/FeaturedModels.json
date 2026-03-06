@@ -1,0 +1,47 @@
+[
+    {
+        "repoId": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+        "fileName": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+        "displayName": "Qwen 2.5 0.5B",
+        "modelFamily": "Qwen",
+        "quantization": "Q4_K_M",
+        "sizeBytes": 469000000,
+        "description": "Ultra-compact model. Great for testing and low-memory devices."
+    },
+    {
+        "repoId": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+        "fileName": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+        "displayName": "Qwen 2.5 1.5B",
+        "modelFamily": "Qwen",
+        "quantization": "Q4_K_M",
+        "sizeBytes": 1100000000,
+        "description": "Small but capable. Good balance of speed and quality."
+    },
+    {
+        "repoId": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+        "fileName": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+        "displayName": "Llama 3.2 1B",
+        "modelFamily": "Llama",
+        "quantization": "Q4_K_M",
+        "sizeBytes": 776000000,
+        "description": "Meta's compact Llama model. Fast inference on mobile."
+    },
+    {
+        "repoId": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+        "fileName": "Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+        "displayName": "Llama 3.2 3B",
+        "modelFamily": "Llama",
+        "quantization": "Q4_K_M",
+        "sizeBytes": 2020000000,
+        "description": "Strong reasoning. Recommended for devices with 6GB+ RAM."
+    },
+    {
+        "repoId": "bartowski/Phi-3.5-mini-instruct-GGUF",
+        "fileName": "Phi-3.5-mini-instruct-Q4_K_M.gguf",
+        "displayName": "Phi 3.5 Mini",
+        "modelFamily": "Phi",
+        "quantization": "Q4_K_M",
+        "sizeBytes": 2180000000,
+        "description": "Microsoft's efficient model. Excellent for its size."
+    }
+]
