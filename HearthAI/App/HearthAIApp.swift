@@ -58,7 +58,7 @@ struct HearthAIApp: App {
                 .replacingOccurrences(of: "_", with: " "),
             modelFamily: guessModelFamily(info.repoId),
             quantization: guessQuantization(info.fileName),
-            fileSizeBytes: info.fileSize,
+            fileSizeBytes: info.actualFileSize ?? info.fileSize,
             localPath: localPath
         )
 

@@ -139,12 +139,16 @@ extension DownloadService: URLSessionDownloadDelegate {
 
         do {
             let localPath = try moveDownloadedFile(from: location, downloadInfo: info)
+            let destURL = FileManager.modelsDirectory.appendingPathComponent(localPath)
+            let actualSize = (try? FileManager.default.attributesOfItem(
+                atPath: destURL.path
+            )[.size] as? Int64) ?? info.fileSize
             DispatchQueue.main.async {
+                info.actualFileSize = actualSize
                 info.status = .completed
                 info.progress = 1.0
                 self.onDownloadComplete?(info)
             }
-            _ = localPath
         } catch {
             DispatchQueue.main.async {
                 info.status = .failed(error.localizedDescription)

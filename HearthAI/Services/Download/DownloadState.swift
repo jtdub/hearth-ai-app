@@ -16,6 +16,7 @@ final class DownloadInfo: Identifiable {
     let fileSize: Int64
     var progress: Double = 0
     var status: DownloadStatus = .queued
+    var actualFileSize: Int64?
     var resumeData: Data?
     var task: URLSessionDownloadTask?
 
