@@ -1,0 +1,661 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01C5AA9BD6F4C0823A324194 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D68E1B22F6633BA12A90545 /* SettingsView.swift */; };
+		03A3AF701474977398790AA6 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5163E146981BFA10057E46 /* ChatView.swift */; };
+		0BE4B41958A063A6C03F361B /* LocalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE68C23BD50C2CE6816C8530 /* LocalModel.swift */; };
+		17C2529672146A86D835ACAB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405D1CA44865EBE10F089668 /* ContentView.swift */; };
+		34D96B95583163C41CC83B2D /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E25E2D8EA8D4E4C2937D929 /* PreviewData.swift */; };
+		3EC1B05C4AAF3F0C5AC05A30 /* ThermalMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C3075948717C3F9278DAD5 /* ThermalMonitor.swift */; };
+		3ECF7975DBD75B903E5EB857 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005D99CFD00EACE9FC742BC6 /* Message.swift */; };
+		73CE4807A74F2AD7AC5B03A0 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = C988D7AB8665E8A6DFE87363 /* MessageBubble.swift */; };
+		7651BC5F24C30D0D44C48067 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E60EC72A2F0D58CA567D91D /* Conversation.swift */; };
+		78CA7BCF236B2498F77B7031 /* InferenceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */; };
+		80380C505B03C4BF206F41EB /* LlamaCpp in Frameworks */ = {isa = PBXBuildFile; productRef = 245B624756E2589153690CEC /* LlamaCpp */; };
+		80B7CA2CFD0017FD15878CE4 /* ModelStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315875C2BEE8F04B1653AEA1 /* ModelStoreView.swift */; };
+		8747ADDE6914933ED42C70A5 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B5F72E3F69C00CEDE45E8C /* Constants.swift */; };
+		988A1466A3BB010F3686F065 /* HearthAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E903921FAA09285C7EC06626 /* HearthAIApp.swift */; };
+		A6E9B6197D48DAC4014311FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EA4C3783A128CC1C2D30817 /* Assets.xcassets */; };
+		C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397BD3F6A93E6069059BBBBF /* AppState.swift */; };
+		F09B9F855596430552F5A8FE /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890BDB102F2FE40261F5A508 /* ChatViewModel.swift */; };
+		F1AD3F2C8048B14FC787BF4D /* FileManager+AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */; };
+		F6D7E75B6E97C47D01634F4B /* InferenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D431ED0C8BB31AC0B5AA80D /* InferenceService.swift */; };
+		FDF5740963252281A3030A24 /* HearthAITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29482A421FB1811401D6034E /* HearthAITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3ABE45C04DCD360A17E63D19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC1F341632279B630DF70468 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45992FD008C054DABF552FDB;
+			remoteInfo = HearthAI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		005D99CFD00EACE9FC742BC6 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		0D431ED0C8BB31AC0B5AA80D /* InferenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceService.swift; sourceTree = "<group>"; };
+		1E25E2D8EA8D4E4C2937D929 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		1EA4C3783A128CC1C2D30817 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		29482A421FB1811401D6034E /* HearthAITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearthAITests.swift; sourceTree = "<group>"; };
+		315875C2BEE8F04B1653AEA1 /* ModelStoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelStoreView.swift; sourceTree = "<group>"; };
+		3308EA296BE9611CEE76B736 /* HearthAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HearthAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		397BD3F6A93E6069059BBBBF /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		405D1CA44865EBE10F089668 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4D21045F4D81AD9F0E6874C6 /* LlamaCpp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LlamaCpp; path = Packages/LlamaCpp; sourceTree = SOURCE_ROOT; };
+		5D1D6195ED7695130A8D335C /* HearthAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HearthAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E60EC72A2F0D58CA567D91D /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
+		890BDB102F2FE40261F5A508 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		8D68E1B22F6633BA12A90545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		99C3075948717C3F9278DAD5 /* ThermalMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalMonitor.swift; sourceTree = "<group>"; };
+		B6B5F72E3F69C00CEDE45E8C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C988D7AB8665E8A6DFE87363 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
+		CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+AppSupport.swift"; sourceTree = "<group>"; };
+		CE68C23BD50C2CE6816C8530 /* LocalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalModel.swift; sourceTree = "<group>"; };
+		E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceConfiguration.swift; sourceTree = "<group>"; };
+		E903921FAA09285C7EC06626 /* HearthAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearthAIApp.swift; sourceTree = "<group>"; };
+		EA5163E146981BFA10057E46 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2D72A49A0638AC7D942AA221 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80380C505B03C4BF206F41EB /* LlamaCpp in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00F89149905095BC15B06495 /* Inference */ = {
+			isa = PBXGroup;
+			children = (
+				E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */,
+				0D431ED0C8BB31AC0B5AA80D /* InferenceService.swift */,
+			);
+			path = Inference;
+			sourceTree = "<group>";
+		};
+		17BC82A6EC84F776D1F486C6 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		2045D264DD939D7B509CFB6E /* HearthAITests */ = {
+			isa = PBXGroup;
+			children = (
+				29482A421FB1811401D6034E /* HearthAITests.swift */,
+			);
+			path = HearthAITests;
+			sourceTree = "<group>";
+		};
+		2615F59D3B7C69AFD409EC88 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3F2C674A23C0DC92FA53DF35 /* Download */,
+				2F0C272745E1A7BF756F96A4 /* HuggingFace */,
+				00F89149905095BC15B06495 /* Inference */,
+				28D8FA9B112871ACFFA27659 /* Thermal */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		28D8FA9B112871ACFFA27659 /* Thermal */ = {
+			isa = PBXGroup;
+			children = (
+				99C3075948717C3F9278DAD5 /* ThermalMonitor.swift */,
+			);
+			path = Thermal;
+			sourceTree = "<group>";
+		};
+		2F0C272745E1A7BF756F96A4 /* HuggingFace */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = HuggingFace;
+			sourceTree = "<group>";
+		};
+		31B438CE7A75F716E8F1F209 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				EA5163E146981BFA10057E46 /* ChatView.swift */,
+				890BDB102F2FE40261F5A508 /* ChatViewModel.swift */,
+				C988D7AB8665E8A6DFE87363 /* MessageBubble.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		3F2C674A23C0DC92FA53DF35 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Download;
+			sourceTree = "<group>";
+		};
+		4621F5E7FFE74EB0509F1161 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		58729933287768EDA5754626 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5D1D6195ED7695130A8D335C /* HearthAI.app */,
+				3308EA296BE9611CEE76B736 /* HearthAITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		682AD48FE2067003DD70B389 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				B6B5F72E3F69C00CEDE45E8C /* Constants.swift */,
+				EEA5A2DF79DCB4D5C8DDB37B /* Components */,
+				4621F5E7FFE74EB0509F1161 /* Extensions */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		74345F7F3A5700DF2291083B /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				8D68E1B22F6633BA12A90545 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		75334D74F2BE4DC0AAB1E510 = {
+			isa = PBXGroup;
+			children = (
+				BD03A9FA57357877BF3848E4 /* HearthAI */,
+				2045D264DD939D7B509CFB6E /* HearthAITests */,
+				C8270D864B0F5758AF99BE99 /* Packages */,
+				58729933287768EDA5754626 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		93B74142C21F5E61F2E41DDB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				397BD3F6A93E6069059BBBBF /* AppState.swift */,
+				405D1CA44865EBE10F089668 /* ContentView.swift */,
+				E903921FAA09285C7EC06626 /* HearthAIApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		BBB4EC1A06C27584DE85088E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1EA4C3783A128CC1C2D30817 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		BD03A9FA57357877BF3848E4 /* HearthAI */ = {
+			isa = PBXGroup;
+			children = (
+				93B74142C21F5E61F2E41DDB /* App */,
+				F040554CB49C2C50B9B4155B /* Features */,
+				E0F9F0FB521AD243B4C216D4 /* Models */,
+				E3E1FA50533CCB90D4EF5558 /* Preview Content */,
+				BBB4EC1A06C27584DE85088E /* Resources */,
+				2615F59D3B7C69AFD409EC88 /* Services */,
+				682AD48FE2067003DD70B389 /* Shared */,
+			);
+			path = HearthAI;
+			sourceTree = "<group>";
+		};
+		C3CEF0A248931D5C41290483 /* ModelStore */ = {
+			isa = PBXGroup;
+			children = (
+				315875C2BEE8F04B1653AEA1 /* ModelStoreView.swift */,
+			);
+			path = ModelStore;
+			sourceTree = "<group>";
+		};
+		C8270D864B0F5758AF99BE99 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				4D21045F4D81AD9F0E6874C6 /* LlamaCpp */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		E0F9F0FB521AD243B4C216D4 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5E60EC72A2F0D58CA567D91D /* Conversation.swift */,
+				CE68C23BD50C2CE6816C8530 /* LocalModel.swift */,
+				005D99CFD00EACE9FC742BC6 /* Message.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E3E1FA50533CCB90D4EF5558 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1E25E2D8EA8D4E4C2937D929 /* PreviewData.swift */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		EEA5A2DF79DCB4D5C8DDB37B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F040554CB49C2C50B9B4155B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				31B438CE7A75F716E8F1F209 /* Chat */,
+				17BC82A6EC84F776D1F486C6 /* Library */,
+				C3CEF0A248931D5C41290483 /* ModelStore */,
+				74345F7F3A5700DF2291083B /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		45992FD008C054DABF552FDB /* HearthAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B9F006878DBBD4B8960E7C14 /* Build configuration list for PBXNativeTarget "HearthAI" */;
+			buildPhases = (
+				A1AC34853E39A2E91FD7332E /* Sources */,
+				EF74A6023E4DB82E27018080 /* Resources */,
+				2D72A49A0638AC7D942AA221 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HearthAI;
+			packageProductDependencies = (
+				245B624756E2589153690CEC /* LlamaCpp */,
+			);
+			productName = HearthAI;
+			productReference = 5D1D6195ED7695130A8D335C /* HearthAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CA86BD510EA5C3E0E637CA79 /* HearthAITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FF65D2BA615CF6AA1F0CB44 /* Build configuration list for PBXNativeTarget "HearthAITests" */;
+			buildPhases = (
+				B3271435C3579A9D5EE1ABDF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				68968BB58DCB0AB0697C6416 /* PBXTargetDependency */,
+			);
+			name = HearthAITests;
+			packageProductDependencies = (
+			);
+			productName = HearthAITests;
+			productReference = 3308EA296BE9611CEE76B736 /* HearthAITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FC1F341632279B630DF70468 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					45992FD008C054DABF552FDB = {
+						DevelopmentTeam = "";
+					};
+					CA86BD510EA5C3E0E637CA79 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 861E5719ACB3F16CEDF5BD99 /* Build configuration list for PBXProject "HearthAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 75334D74F2BE4DC0AAB1E510;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F70D78B872FDA453C8F0DA48 /* XCLocalSwiftPackageReference "Packages/LlamaCpp" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				45992FD008C054DABF552FDB /* HearthAI */,
+				CA86BD510EA5C3E0E637CA79 /* HearthAITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EF74A6023E4DB82E27018080 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6E9B6197D48DAC4014311FB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1AC34853E39A2E91FD7332E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */,
+				03A3AF701474977398790AA6 /* ChatView.swift in Sources */,
+				F09B9F855596430552F5A8FE /* ChatViewModel.swift in Sources */,
+				8747ADDE6914933ED42C70A5 /* Constants.swift in Sources */,
+				17C2529672146A86D835ACAB /* ContentView.swift in Sources */,
+				7651BC5F24C30D0D44C48067 /* Conversation.swift in Sources */,
+				F1AD3F2C8048B14FC787BF4D /* FileManager+AppSupport.swift in Sources */,
+				988A1466A3BB010F3686F065 /* HearthAIApp.swift in Sources */,
+				78CA7BCF236B2498F77B7031 /* InferenceConfiguration.swift in Sources */,
+				F6D7E75B6E97C47D01634F4B /* InferenceService.swift in Sources */,
+				0BE4B41958A063A6C03F361B /* LocalModel.swift in Sources */,
+				3ECF7975DBD75B903E5EB857 /* Message.swift in Sources */,
+				73CE4807A74F2AD7AC5B03A0 /* MessageBubble.swift in Sources */,
+				80B7CA2CFD0017FD15878CE4 /* ModelStoreView.swift in Sources */,
+				34D96B95583163C41CC83B2D /* PreviewData.swift in Sources */,
+				01C5AA9BD6F4C0823A324194 /* SettingsView.swift in Sources */,
+				3EC1B05C4AAF3F0C5AC05A30 /* ThermalMonitor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B3271435C3579A9D5EE1ABDF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FDF5740963252281A3030A24 /* HearthAITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		68968BB58DCB0AB0697C6416 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 45992FD008C054DABF552FDB /* HearthAI */;
+			targetProxy = 3ABE45C04DCD360A17E63D19 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		319DDEA9667A942081A051F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		57D4BC01060A676CE8A5000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/HearthAI";
+			};
+			name = Debug;
+		};
+		59999A2F3A86A4222C0598AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		DE4B532BFCFB3D5DF884AC5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hearth AI";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F4643871B9D6B1F66A07071F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hearth AI";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F84EC9E6CC14F7E483A47678 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/HearthAI";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4FF65D2BA615CF6AA1F0CB44 /* Build configuration list for PBXNativeTarget "HearthAITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				57D4BC01060A676CE8A5000E /* Debug */,
+				F84EC9E6CC14F7E483A47678 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		861E5719ACB3F16CEDF5BD99 /* Build configuration list for PBXProject "HearthAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				319DDEA9667A942081A051F8 /* Debug */,
+				59999A2F3A86A4222C0598AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B9F006878DBBD4B8960E7C14 /* Build configuration list for PBXNativeTarget "HearthAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4643871B9D6B1F66A07071F /* Debug */,
+				DE4B532BFCFB3D5DF884AC5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F70D78B872FDA453C8F0DA48 /* XCLocalSwiftPackageReference "Packages/LlamaCpp" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/LlamaCpp;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		245B624756E2589153690CEC /* LlamaCpp */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LlamaCpp;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FC1F341632279B630DF70468 /* Project object */;
+}
