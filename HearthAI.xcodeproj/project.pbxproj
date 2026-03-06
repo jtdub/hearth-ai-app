@@ -10,6 +10,7 @@
 		01C5AA9BD6F4C0823A324194 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D68E1B22F6633BA12A90545 /* SettingsView.swift */; };
 		03A3AF701474977398790AA6 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5163E146981BFA10057E46 /* ChatView.swift */; };
 		08254E655C4E1BF9388FCC6A /* ModelStoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FA0F0505A852036347ADD6 /* ModelStoreViewModel.swift */; };
+		0B84B8B521C641C11494F926 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */; };
 		0BE4B41958A063A6C03F361B /* LocalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE68C23BD50C2CE6816C8530 /* LocalModel.swift */; };
 		113B66D2FA42EE2D775C50EF /* ChatSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AC4C60DF7E5535303E6452 /* ChatSettingsSheet.swift */; };
 		155F299FF7740D656A56B321 /* FeaturedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373240DBA631EE03834240EE /* FeaturedModel.swift */; };
@@ -19,6 +20,7 @@
 		34D96B95583163C41CC83B2D /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E25E2D8EA8D4E4C2937D929 /* PreviewData.swift */; };
 		3EC1B05C4AAF3F0C5AC05A30 /* ThermalMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C3075948717C3F9278DAD5 /* ThermalMonitor.swift */; };
 		3ECF7975DBD75B903E5EB857 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005D99CFD00EACE9FC742BC6 /* Message.swift */; };
+		5DE61E898D2CE47CF8A5E7C4 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57675E80BA89A795BDA6A7AD /* NetworkMonitor.swift */; };
 		73CE4807A74F2AD7AC5B03A0 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = C988D7AB8665E8A6DFE87363 /* MessageBubble.swift */; };
 		7651BC5F24C30D0D44C48067 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E60EC72A2F0D58CA567D91D /* Conversation.swift */; };
 		78CA7BCF236B2498F77B7031 /* InferenceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */; };
@@ -36,6 +38,7 @@
 		C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397BD3F6A93E6069059BBBBF /* AppState.swift */; };
 		CBB8F9486DF5B9A8F6F350A7 /* DeviceCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79297A2500C2BFE5F893531F /* DeviceCapability.swift */; };
 		CDB4579A512B12F942C6E768 /* ModelDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D180D8E597FDFD2F857CFD /* ModelDetailView.swift */; };
+		E0828423A5C46E7865000D6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5CA13813432F5CBE0F619D /* OnboardingView.swift */; };
 		F09B9F855596430552F5A8FE /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890BDB102F2FE40261F5A508 /* ChatViewModel.swift */; };
 		F1AD3F2C8048B14FC787BF4D /* FileManager+AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */; };
 		F6D7E75B6E97C47D01634F4B /* InferenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D431ED0C8BB31AC0B5AA80D /* InferenceService.swift */; };
@@ -72,10 +75,12 @@
 		4B9017344B1655F30D083ABC /* DownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
 		4D21045F4D81AD9F0E6874C6 /* LlamaCpp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LlamaCpp; path = Packages/LlamaCpp; sourceTree = SOURCE_ROOT; };
 		4D9CB851129C2E57E58FF870 /* HFModelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HFModelInfo.swift; sourceTree = "<group>"; };
+		57675E80BA89A795BDA6A7AD /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		5D1D6195ED7695130A8D335C /* HearthAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HearthAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E60EC72A2F0D58CA567D91D /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		79297A2500C2BFE5F893531F /* DeviceCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCapability.swift; sourceTree = "<group>"; };
 		79397D1BF9F8D57724511993 /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
+		7A5CA13813432F5CBE0F619D /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		7FA5D99754391A1FBEBEECBE /* FeaturedModels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FeaturedModels.json; sourceTree = "<group>"; };
 		890BDB102F2FE40261F5A508 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		8D68E1B22F6633BA12A90545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -87,6 +92,7 @@
 		C988D7AB8665E8A6DFE87363 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+AppSupport.swift"; sourceTree = "<group>"; };
 		CE68C23BD50C2CE6816C8530 /* LocalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalModel.swift; sourceTree = "<group>"; };
+		D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceConfiguration.swift; sourceTree = "<group>"; };
 		E903921FAA09285C7EC06626 /* HearthAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearthAIApp.swift; sourceTree = "<group>"; };
 		EA5163E146981BFA10057E46 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -202,6 +208,7 @@
 			isa = PBXGroup;
 			children = (
 				B6B5F72E3F69C00CEDE45E8C /* Constants.swift */,
+				57675E80BA89A795BDA6A7AD /* NetworkMonitor.swift */,
 				EEA5A2DF79DCB4D5C8DDB37B /* Components */,
 				4621F5E7FFE74EB0509F1161 /* Extensions */,
 			);
@@ -211,6 +218,7 @@
 		74345F7F3A5700DF2291083B /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */,
 				8D68E1B22F6633BA12A90545 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -278,6 +286,14 @@
 			path = Packages;
 			sourceTree = "<group>";
 		};
+		D161B772E6423734E27278F1 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				7A5CA13813432F5CBE0F619D /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		E0F9F0FB521AD243B4C216D4 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -309,6 +325,7 @@
 				31B438CE7A75F716E8F1F209 /* Chat */,
 				17BC82A6EC84F776D1F486C6 /* Library */,
 				C3CEF0A248931D5C41290483 /* ModelStore */,
+				D161B772E6423734E27278F1 /* Onboarding */,
 				74345F7F3A5700DF2291083B /* Settings */,
 			);
 			path = Features;
@@ -439,7 +456,10 @@
 				A8F8386F0CC30F0FDEB0FA60 /* ModelPickerSheet.swift in Sources */,
 				80B7CA2CFD0017FD15878CE4 /* ModelStoreView.swift in Sources */,
 				08254E655C4E1BF9388FCC6A /* ModelStoreViewModel.swift in Sources */,
+				5DE61E898D2CE47CF8A5E7C4 /* NetworkMonitor.swift in Sources */,
+				E0828423A5C46E7865000D6F /* OnboardingView.swift in Sources */,
 				34D96B95583163C41CC83B2D /* PreviewData.swift in Sources */,
+				0B84B8B521C641C11494F926 /* PrivacyPolicyView.swift in Sources */,
 				01C5AA9BD6F4C0823A324194 /* SettingsView.swift in Sources */,
 				3EC1B05C4AAF3F0C5AC05A30 /* ThermalMonitor.swift in Sources */,
 			);

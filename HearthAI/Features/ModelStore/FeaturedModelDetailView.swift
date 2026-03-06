@@ -4,6 +4,7 @@ import SwiftData
 struct FeaturedModelDetailView: View {
     let model: FeaturedModel
     @Environment(DownloadService.self) private var downloadService
+    @Environment(NetworkMonitor.self) private var networkMonitor
     @Query private var localModels: [LocalModel]
 
     private var isDownloaded: Bool {
@@ -30,6 +31,7 @@ struct FeaturedModelDetailView: View {
             }
 
             memoryWarningSection(fileSize: model.sizeBytes)
+            cellularWarningSection(fileSize: model.sizeBytes)
 
             Section {
                 if isDownloaded {
@@ -57,6 +59,31 @@ struct FeaturedModelDetailView: View {
         }
         .navigationTitle(model.displayName)
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private static let cellularWarningThreshold: Int64 = 200_000_000
+
+    @ViewBuilder
+    private func cellularWarningSection(fileSize: Int64) -> some View {
+        if fileSize > Self.cellularWarningThreshold && !networkMonitor.isOnWiFi {
+            Section {
+                Label {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Large download over cellular")
+                            .font(.caption.bold())
+                        Text(
+                            "This file is \(ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)). "
+                            + "Consider connecting to Wi-Fi before downloading."
+                        )
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "wifi.exclamationmark")
+                        .foregroundStyle(.orange)
+                }
+            }
+        }
     }
 
     @ViewBuilder

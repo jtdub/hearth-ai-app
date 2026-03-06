@@ -23,4 +23,5 @@ struct ContentView: View {
         .environment(AppState())
         .environment(InferenceService())
         .environment(DownloadService())
+        .environment(NetworkMonitor())
 }

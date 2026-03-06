@@ -4,6 +4,8 @@ import SwiftData
 @main
 struct HearthAIApp: App {
     @State private var appState = AppState()
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
 
     var body: some Scene {
         WindowGroup {
@@ -11,8 +13,18 @@ struct HearthAIApp: App {
                 .environment(appState)
                 .environment(appState.inferenceService)
                 .environment(appState.downloadService)
+                .environment(appState.networkMonitor)
                 .onAppear {
                     setupDownloadCompletion()
+                    if !hasCompletedOnboarding {
+                        showOnboarding = true
+                    }
+                }
+                .fullScreenCover(isPresented: $showOnboarding) {
+                    OnboardingView(isPresented: $showOnboarding)
+                        .onDisappear {
+                            hasCompletedOnboarding = true
+                        }
                 }
         }
         .modelContainer(for: [

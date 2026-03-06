@@ -70,6 +70,9 @@ struct FileRow: View {
     let isDownloaded: Bool
     let activeDownload: DownloadInfo?
     @Environment(DownloadService.self) private var downloadService
+    @Environment(NetworkMonitor.self) private var networkMonitor
+
+    private static let cellularWarningThreshold: Int64 = 200_000_000
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -90,11 +93,20 @@ struct FileRow: View {
             } else if let download = activeDownload {
                 DownloadProgressRow(download: download)
             } else {
-                let fit = DeviceCapability.canRunModel(fileSizeBytes: file.size ?? 0)
+                let fileSize = file.size ?? 0
+                let fit = DeviceCapability.canRunModel(fileSizeBytes: fileSize)
                 if let warning = fit.warningMessage {
                     Label(warning, systemImage: "exclamationmark.triangle")
                         .font(.caption2)
                         .foregroundStyle(fit.canDownload ? .orange : .red)
+                }
+                if fileSize > Self.cellularWarningThreshold && !networkMonitor.isOnWiFi {
+                    Label(
+                        "Large file — Wi-Fi recommended",
+                        systemImage: "wifi.exclamationmark"
+                    )
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
                 }
                 Button {
                     downloadService.startDownload(

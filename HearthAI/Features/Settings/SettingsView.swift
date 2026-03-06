@@ -57,7 +57,10 @@ struct SettingsView: View {
                     LabeledContent("Powered by", value: "llama.cpp")
                 }
 
-                Section("Licenses") {
+                Section("Legal") {
+                    NavigationLink("Privacy Policy") {
+                        PrivacyPolicyView()
+                    }
                     NavigationLink("Open Source Licenses") {
                         LicensesView()
                     }
