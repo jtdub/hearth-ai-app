@@ -1,0 +1,3 @@
+[submodule "Packages/LlamaCpp/vendored/llama.cpp"]
+	path = Packages/LlamaCpp/vendored/llama.cpp
+	url = https://github.com/ggml-org/llama.cpp.git

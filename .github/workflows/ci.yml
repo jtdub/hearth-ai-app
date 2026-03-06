@@ -30,12 +30,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install XcodeGen
         run: brew install xcodegen
-
-      - name: Generate Xcode Project
-        run: xcodegen generate
 
       - name: Select Xcode
         run: |
@@ -45,6 +44,12 @@ jobs:
 
       - name: Show Xcode Version
         run: xcodebuild -version
+
+      - name: Build llama.cpp XCFramework
+        run: bash scripts/build-xcframework.sh
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
 
       - name: Find Simulator
         id: simulator
@@ -76,7 +81,8 @@ jobs:
             -scheme HearthAI \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -quiet \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS='x86_64'
 
       - name: Test
         run: |
@@ -85,4 +91,5 @@ jobs:
             -scheme HearthAITests \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -quiet \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS='x86_64'

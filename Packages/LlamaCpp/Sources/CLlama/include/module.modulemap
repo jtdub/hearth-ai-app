@@ -1,4 +1,0 @@
-module CLlama {
-    header "llama_bridge.h"
-    export *
-}
