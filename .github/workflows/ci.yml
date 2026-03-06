@@ -85,10 +85,11 @@ jobs:
             EXCLUDED_ARCHS='x86_64'
 
       - name: Test
+        timeout-minutes: 10
         run: |
           xcodebuild test \
             -project HearthAI.xcodeproj \
-            -scheme HearthAITests \
+            -scheme HearthAI \
             -destination '${{ steps.simulator.outputs.destination }}' \
             -quiet \
             CODE_SIGNING_ALLOWED=NO \
