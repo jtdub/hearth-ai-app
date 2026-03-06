@@ -19,6 +19,13 @@ Package.resolved
 
 # GGUF model files (large binaries)
 *.gguf
+models/
+
+# llama.cpp XCFramework (built locally via scripts/build-xcframework.sh)
+Packages/LlamaCpp/llama.xcframework/
+
+# Build artifacts
+build-llama/
 
 # OS files
 .DS_Store
