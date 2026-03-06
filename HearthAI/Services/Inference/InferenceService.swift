@@ -2,12 +2,12 @@ import Foundation
 import LlamaCpp
 import UIKit
 
-/// Manages model loading/unloading and provides the inference API to the app.
 @Observable
 final class InferenceService {
     private(set) var loadedModelId: String?
     private(set) var isLoading = false
     private(set) var isGenerating = false
+    private(set) var loadError: String?
 
     private var context: LlamaContext?
     private var backgroundTimer: Timer?
@@ -22,10 +22,13 @@ final class InferenceService {
     func loadModel(_ model: LocalModel) async throws {
         await unloadModel()
         isLoading = true
+        loadError = nil
         defer { isLoading = false }
 
-        let path = model.absolutePath.path
-        context = try LlamaContext(modelPath: path, contextSize: 2048, gpuLayers: -1)
+        let path = model.absolutePath
+        try validateModelFile(at: path, expected: model.fileSizeBytes)
+
+        context = try LlamaContext(modelPath: path.path, contextSize: 2048, gpuLayers: -1)
         loadedModelId = model.id
     }
 
@@ -75,6 +78,25 @@ final class InferenceService {
         isGenerating = false
     }
 
+    // MARK: - File Validation
+
+    private func validateModelFile(at url: URL, expected: Int64) throws {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw InferenceError.modelFileNotFound(url.lastPathComponent)
+        }
+
+        let attrs = try FileManager.default.attributesOfItem(atPath: url.path)
+        guard let fileSize = attrs[.size] as? Int64 else {
+            throw InferenceError.modelFileCorrupted(url.lastPathComponent)
+        }
+
+        if expected > 0 && fileSize != expected {
+            throw InferenceError.modelFileSizeMismatch(
+                expected: expected, actual: fileSize
+            )
+        }
+    }
+
     // MARK: - Memory Management
 
     private func setupMemoryWarningObserver() {
@@ -107,7 +129,10 @@ final class InferenceService {
     }
 
     private func startBackgroundUnloadTimer() {
-        backgroundTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { [weak self] _ in
+        backgroundTimer = Timer.scheduledTimer(
+            withTimeInterval: Constants.backgroundUnloadTimeout,
+            repeats: false
+        ) { [weak self] _ in
             guard let self else { return }
             Task { await self.unloadModel() }
         }
@@ -116,5 +141,24 @@ final class InferenceService {
     private func cancelBackgroundUnloadTimer() {
         backgroundTimer?.invalidate()
         backgroundTimer = nil
+    }
+}
+
+enum InferenceError: Error, LocalizedError {
+    case modelFileNotFound(String)
+    case modelFileCorrupted(String)
+    case modelFileSizeMismatch(expected: Int64, actual: Int64)
+
+    var errorDescription: String? {
+        switch self {
+        case .modelFileNotFound(let name):
+            return "Model file not found: \(name)"
+        case .modelFileCorrupted(let name):
+            return "Model file appears corrupted: \(name)"
+        case .modelFileSizeMismatch(let expected, let actual):
+            let exp = ByteCountFormatter.string(fromByteCount: expected, countStyle: .file)
+            let act = ByteCountFormatter.string(fromByteCount: actual, countStyle: .file)
+            return "Model file size mismatch: expected \(exp), got \(act). The file may be corrupted."
+        }
     }
 }

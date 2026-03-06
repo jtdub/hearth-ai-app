@@ -3,6 +3,7 @@ import SwiftUI
 struct MessageBubble: View {
     let role: MessageRole
     let content: String
+    @State private var showCopied = false
 
     init(message: ChatMessage) {
         self.role = message.role
@@ -29,6 +30,28 @@ struct MessageBubble: View {
                     .background(bubbleColor, in: bubbleShape)
                     .foregroundStyle(role == .user ? .white : .primary)
                     .textSelection(.enabled)
+                    .contextMenu {
+                        Button {
+                            UIPasteboard.general.string = content
+                            showCopied = true
+                        } label: {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        if showCopied {
+                            Text("Copied")
+                                .font(.caption2)
+                                .padding(4)
+                                .background(.ultraThinMaterial, in: Capsule())
+                                .transition(.opacity)
+                                .onAppear {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                        withAnimation { showCopied = false }
+                                    }
+                                }
+                        }
+                    }
             }
 
             if role == .assistant { Spacer(minLength: 48) }

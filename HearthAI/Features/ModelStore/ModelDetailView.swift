@@ -90,6 +90,12 @@ struct FileRow: View {
             } else if let download = activeDownload {
                 DownloadProgressRow(download: download)
             } else {
+                let fit = DeviceCapability.canRunModel(fileSizeBytes: file.size ?? 0)
+                if let warning = fit.warningMessage {
+                    Label(warning, systemImage: "exclamationmark.triangle")
+                        .font(.caption2)
+                        .foregroundStyle(fit.canDownload ? .orange : .red)
+                }
                 Button {
                     downloadService.startDownload(
                         repoId: repoId,
@@ -100,6 +106,7 @@ struct FileRow: View {
                     Label("Download", systemImage: "arrow.down.circle")
                         .font(.caption)
                 }
+                .disabled(!fit.canDownload)
             }
         }
         .padding(.vertical, 4)

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import HearthAI
 
@@ -63,4 +64,36 @@ import Testing
     #expect(!viewModel.featuredModels.isEmpty)
     #expect(viewModel.searchResults.isEmpty)
     #expect(viewModel.isSearching == false)
+}
+
+// MARK: - Phase 3 Tests
+
+@Test func deviceCapabilityMemoryCheck() {
+    let small = DeviceCapability.canRunModel(fileSizeBytes: 100_000)
+    #expect(small == .fits)
+
+    let huge = DeviceCapability.canRunModel(fileSizeBytes: 999_000_000_000)
+    #expect(huge == .tooLarge)
+    #expect(huge.canDownload == false)
+}
+
+@Test func thermalMonitorInitialState() {
+    let monitor = ThermalMonitor()
+    #expect(monitor.thermalState == ProcessInfo.processInfo.thermalState)
+}
+
+@Test func chatViewModelNewConversation() {
+    let viewModel = ChatViewModel()
+    viewModel.messages.append(ChatMessage(role: .user, content: "test"))
+    viewModel.newConversation()
+    #expect(viewModel.messages.isEmpty)
+    #expect(viewModel.activeConversation == nil)
+}
+
+@Test func inferenceErrorDescriptions() {
+    let notFound = InferenceError.modelFileNotFound("test.gguf")
+    #expect(notFound.localizedDescription.contains("test.gguf"))
+
+    let mismatch = InferenceError.modelFileSizeMismatch(expected: 1000, actual: 500)
+    #expect(mismatch.localizedDescription.contains("mismatch"))
 }
