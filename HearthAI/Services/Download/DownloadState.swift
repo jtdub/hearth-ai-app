@@ -8,6 +8,7 @@ enum DownloadStatus: Sendable {
     case failed(String)
 }
 
+@MainActor
 @Observable
 final class DownloadInfo: Identifiable {
     let id: String

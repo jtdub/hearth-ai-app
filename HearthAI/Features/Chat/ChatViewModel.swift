@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 @Observable
 final class ChatViewModel {
     var messages: [ChatMessage] = []
@@ -43,13 +44,30 @@ final class ChatViewModel {
             return
         }
 
+        let stopTokens = ["<|im_end|>", "<|im_start|>", "<|endoftext|>"]
+
         for await token in stream {
             if thermalMonitor?.isCritical == true {
                 await inferenceService.cancelGeneration()
                 break
             }
             streamingText += token
+
+            // Stop if a chat template stop token appears in the output
+            if stopTokens.contains(where: { streamingText.hasSuffix($0) }) {
+                for stop in stopTokens where streamingText.hasSuffix(stop) {
+                    streamingText = String(streamingText.dropLast(stop.count))
+                }
+                await inferenceService.cancelGeneration()
+                break
+            }
         }
+
+        // Clean any remaining stop tokens that may have been split across yields
+        for stop in stopTokens {
+            streamingText = streamingText.replacingOccurrences(of: stop, with: "")
+        }
+        streamingText = streamingText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if !streamingText.isEmpty {
             let assistantMessage = ChatMessage(role: .assistant, content: streamingText)
@@ -62,6 +80,7 @@ final class ChatViewModel {
     }
 
     func stopGenerating() async {
+        guard isGenerating else { return }
         await inferenceService?.cancelGeneration()
         if !streamingText.isEmpty {
             let partial = ChatMessage(role: .assistant, content: streamingText)
@@ -73,6 +92,11 @@ final class ChatViewModel {
     }
 
     func clearMessages() {
+        if let conversation = activeConversation {
+            modelContext?.delete(conversation)
+            try? modelContext?.save()
+        }
+        activeConversation = nil
         messages.removeAll()
         streamingText = ""
     }

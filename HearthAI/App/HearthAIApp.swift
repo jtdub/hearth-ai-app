@@ -4,6 +4,15 @@ import SwiftData
 @main
 struct HearthAIApp: App {
     @State private var appState = AppState()
+    private let modelContainer: ModelContainer
+
+    init() {
+        do {
+            modelContainer = try ModelContainer(for: LocalModel.self, Conversation.self, Message.self)
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -15,11 +24,7 @@ struct HearthAIApp: App {
                     setupDownloadCompletion()
                 }
         }
-        .modelContainer(for: [
-            LocalModel.self,
-            Conversation.self,
-            Message.self,
-        ])
+        .modelContainer(modelContainer)
     }
 
     private func setupDownloadCompletion() {
@@ -30,11 +35,20 @@ struct HearthAIApp: App {
 
     @MainActor
     private func saveDownloadedModel(info: DownloadInfo, appState: AppState) {
-        guard let container = try? ModelContainer(for: LocalModel.self) else { return }
-        let context = container.mainContext
+        let context = modelContainer.mainContext
 
         let repoComponent = info.repoId.replacingOccurrences(of: "/", with: "_")
         let localPath = "\(repoComponent)/\(info.fileName)"
+
+        // Use actual file size from disk rather than pre-configured estimate
+        let fileURL = FileManager.modelsDirectory.appendingPathComponent(localPath)
+        let actualSize: Int64
+        if let attrs = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
+           let size = attrs[.size] as? Int64 {
+            actualSize = size
+        } else {
+            actualSize = info.fileSize
+        }
 
         let model = LocalModel(
             id: info.id,
@@ -46,7 +60,7 @@ struct HearthAIApp: App {
                 .replacingOccurrences(of: "_", with: " "),
             modelFamily: guessModelFamily(info.repoId),
             quantization: guessQuantization(info.fileName),
-            fileSizeBytes: info.fileSize,
+            fileSizeBytes: actualSize,
             localPath: localPath
         )
 

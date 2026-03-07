@@ -2,6 +2,7 @@ import Foundation
 import LlamaCpp
 import UIKit
 
+@MainActor
 @Observable
 final class InferenceService {
     private(set) var loadedModelId: String?
@@ -10,11 +11,18 @@ final class InferenceService {
     private(set) var loadError: String?
 
     private var context: LlamaContext?
-    private var backgroundTimer: Timer?
+    private nonisolated(unsafe) var notificationObservers: [Any] = []
 
     init() {
         setupMemoryWarningObserver()
         setupBackgroundObservers()
+    }
+
+    deinit {
+        for observer in notificationObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        backgroundTask?.cancel()
     }
 
     // MARK: - Model Lifecycle
@@ -33,6 +41,9 @@ final class InferenceService {
     }
 
     func unloadModel() async {
+        if isGenerating {
+            await cancelGeneration()
+        }
         if let context {
             await context.cancel()
         }
@@ -52,7 +63,7 @@ final class InferenceService {
         isGenerating = true
 
         let stream = AsyncStream<String> { continuation in
-            Task {
+            Task.detached { [weak self] in
                 let tokenStream = await context.generate(
                     prompt: prompt,
                     maxTokens: config.maxTokens,
@@ -66,7 +77,7 @@ final class InferenceService {
                 }
 
                 continuation.finish()
-                await MainActor.run { self.isGenerating = false }
+                await MainActor.run { [weak self] in self?.isGenerating = false }
             }
         }
 
@@ -100,47 +111,51 @@ final class InferenceService {
     // MARK: - Memory Management
 
     private func setupMemoryWarningObserver() {
-        NotificationCenter.default.addObserver(
+        let observer = NotificationCenter.default.addObserver(
             forName: UIApplication.didReceiveMemoryWarningNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
             guard let self else { return }
-            Task { await self.unloadModel() }
+            Task { @MainActor in await self.unloadModel() }
         }
+        notificationObservers.append(observer)
     }
 
     private func setupBackgroundObservers() {
-        NotificationCenter.default.addObserver(
+        let bgObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.startBackgroundUnloadTimer()
+            Task { @MainActor in self?.startBackgroundUnloadTimer() }
         }
+        notificationObservers.append(bgObserver)
 
-        NotificationCenter.default.addObserver(
+        let fgObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.cancelBackgroundUnloadTimer()
+            Task { @MainActor in self?.cancelBackgroundUnloadTimer() }
         }
+        notificationObservers.append(fgObserver)
     }
 
+    private nonisolated(unsafe) var backgroundTask: Task<Void, Never>?
+
     private func startBackgroundUnloadTimer() {
-        backgroundTimer = Timer.scheduledTimer(
-            withTimeInterval: Constants.backgroundUnloadTimeout,
-            repeats: false
-        ) { [weak self] _ in
-            guard let self else { return }
-            Task { await self.unloadModel() }
+        backgroundTask?.cancel()
+        backgroundTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Constants.backgroundUnloadTimeout))
+            guard !Task.isCancelled else { return }
+            await self?.unloadModel()
         }
     }
 
     private func cancelBackgroundUnloadTimer() {
-        backgroundTimer?.invalidate()
-        backgroundTimer = nil
+        backgroundTask?.cancel()
+        backgroundTask = nil
     }
 }
 

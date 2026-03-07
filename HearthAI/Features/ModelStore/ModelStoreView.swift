@@ -14,6 +14,7 @@ struct ModelStoreView: View {
                 }
 
                 if viewModel.searchText.isEmpty {
+                    compatibleSection
                     featuredSection
                 } else if viewModel.isSearching {
                     Section {
@@ -42,6 +43,9 @@ struct ModelStoreView: View {
                     viewModel.clearSearch()
                 }
             }
+            .onAppear {
+                viewModel.loadCompatibleModels()
+            }
         }
     }
 
@@ -51,6 +55,49 @@ struct ModelStoreView: View {
         Section("Downloads") {
             ForEach(downloadService.activeDownloads) { download in
                 DownloadProgressRow(download: download)
+            }
+        }
+    }
+
+    // MARK: - Compatible Models
+
+    private var compatibleSection: some View {
+        Section {
+            if viewModel.isLoadingCompatible {
+                ProgressView("Finding compatible models...")
+                    .frame(maxWidth: .infinity)
+            } else if let error = viewModel.compatibleError {
+                Label(error, systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            } else {
+                ForEach(viewModel.compatibleFiles.prefix(10)) { item in
+                    NavigationLink {
+                        ModelDetailView(
+                            model: HFModelInfo(
+                                id: item.repoId,
+                                author: nil,
+                                downloads: item.downloads,
+                                likes: 0,
+                                tags: [],
+                                isPrivate: false,
+                                isGated: false,
+                                lastModified: nil
+                            )
+                        )
+                    } label: {
+                        CompatibleFileRow(
+                            item: item,
+                            isDownloaded: isModelDownloaded(item.id)
+                        )
+                    }
+                }
+            }
+        } header: {
+            Text("Compatible with Your Device")
+        } footer: {
+            if !viewModel.compatibleFiles.isEmpty {
+                Text("Based on \(DeviceCapability.availableMemoryFormatted) available memory")
             }
         }
     }
@@ -211,6 +258,43 @@ struct DownloadProgressRow: View {
                     .font(.caption)
                     .foregroundStyle(.red)
             }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct CompatibleFileRow: View {
+    let item: CompatibleFile
+    let isDownloaded: Bool
+    @Environment(DownloadService.self) private var downloadService
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(item.repoName)
+                    .font(.headline)
+                if isDownloaded {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.caption)
+                }
+                if item.fit == .tight {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                        .font(.caption)
+                }
+            }
+            Text(item.file.fileName)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            HStack(spacing: 12) {
+                Label(item.file.formattedSize, systemImage: "doc")
+                Label(item.file.quantization, systemImage: "cpu")
+                Label("\(item.downloads) downloads", systemImage: "arrow.down.circle")
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
         }
         .padding(.vertical, 4)
     }

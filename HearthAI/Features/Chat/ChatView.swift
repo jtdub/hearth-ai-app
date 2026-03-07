@@ -22,84 +22,15 @@ struct ChatView: View {
             }
             .navigationTitle("Hearth AI")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 12) {
-                        Button {
-                            showConversations = true
-                        } label: {
-                            Image(systemName: "list.bullet")
-                        }
-                        Button {
-                            showModelPicker = true
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "brain")
-                                if inferenceService.isModelLoaded {
-                                    Circle()
-                                        .fill(.green)
-                                        .frame(width: 6, height: 6)
-                                }
-                            }
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            viewModel.newConversation()
-                        } label: {
-                            Label("New Chat", systemImage: "plus")
-                        }
-                        Button {
-                            Task { await viewModel.regenerateLastResponse() }
-                        } label: {
-                            Label("Regenerate", systemImage: "arrow.clockwise")
-                        }
-                        .disabled(!canRegenerate)
-                        Button {
-                            showChatSettings = true
-                        } label: {
-                            Label("Chat Settings", systemImage: "slider.horizontal.3")
-                        }
-                        Divider()
-                        Button(role: .destructive) {
-                            viewModel.clearMessages()
-                        } label: {
-                            Label("Clear Chat", systemImage: "trash")
-                        }
-                        .disabled(viewModel.messages.isEmpty)
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                    }
-                }
-            }
+            .toolbar { chatToolbar }
             .sheet(isPresented: $showModelPicker) {
                 ModelPickerSheet()
             }
             .sheet(isPresented: $showConversations) {
-                ConversationListView(
-                    onSelect: { viewModel.loadConversation($0) },
-                    onNew: { viewModel.newConversation() },
-                    onDelete: { viewModel.deleteConversation($0) }
-                )
+                conversationSheet
             }
             .sheet(isPresented: $showChatSettings) {
-                ChatSettingsSheet(
-                    systemPrompt: viewModel.activeConversation?.systemPrompt
-                        ?? "You are a helpful assistant.",
-                    temperature: viewModel.activeConversation?.temperature
-                        ?? Constants.defaultTemperature,
-                    topP: viewModel.activeConversation?.topP
-                        ?? Constants.defaultTopP,
-                    onSave: { prompt, temp, top in
-                        viewModel.updateConversationSettings(
-                            systemPrompt: prompt,
-                            temperature: temp,
-                            topP: top
-                        )
-                    }
-                )
+                chatSettingsSheet
             }
         }
         .onAppear {
@@ -107,6 +38,90 @@ struct ChatView: View {
             viewModel.thermalMonitor = appState.thermalMonitor
             viewModel.modelContext = modelContext
         }
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var chatToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            HStack(spacing: 12) {
+                Button {
+                    showConversations = true
+                } label: {
+                    Image(systemName: "list.bullet")
+                }
+                Button {
+                    showModelPicker = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "brain")
+                        if inferenceService.isModelLoaded {
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                }
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Button {
+                    viewModel.newConversation()
+                } label: {
+                    Label("New Chat", systemImage: "plus")
+                }
+                Button {
+                    Task { await viewModel.regenerateLastResponse() }
+                } label: {
+                    Label("Regenerate", systemImage: "arrow.clockwise")
+                }
+                .disabled(!canRegenerate)
+                Button {
+                    showChatSettings = true
+                } label: {
+                    Label("Chat Settings", systemImage: "slider.horizontal.3")
+                }
+                Divider()
+                Button(role: .destructive) {
+                    viewModel.clearMessages()
+                } label: {
+                    Label("Clear Chat", systemImage: "trash")
+                }
+                .disabled(viewModel.messages.isEmpty)
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+        }
+    }
+
+    // MARK: - Sheets
+
+    private var conversationSheet: some View {
+        ConversationListView(
+            onSelect: { viewModel.loadConversation($0) },
+            onNew: { viewModel.newConversation() },
+            onDelete: { viewModel.deleteConversation($0) }
+        )
+    }
+
+    private var chatSettingsSheet: some View {
+        ChatSettingsSheet(
+            systemPrompt: viewModel.activeConversation?.systemPrompt
+                ?? "You are a helpful assistant.",
+            temperature: viewModel.activeConversation?.temperature
+                ?? Constants.defaultTemperature,
+            topP: viewModel.activeConversation?.topP
+                ?? Constants.defaultTopP,
+            onSave: { prompt, temp, top in
+                viewModel.updateConversationSettings(
+                    systemPrompt: prompt,
+                    temperature: temp,
+                    topP: top
+                )
+            }
+        )
     }
 
     private var canRegenerate: Bool {

@@ -1,22 +1,33 @@
 import Foundation
 
+@MainActor
 @Observable
 final class ThermalMonitor {
     private(set) var thermalState: ProcessInfo.ThermalState = .nominal
     private(set) var shouldWarnUser = false
     var onCritical: (() -> Void)?
 
+    private nonisolated(unsafe) var notificationObserver: Any?
+
     init() {
         thermalState = ProcessInfo.processInfo.thermalState
         updateWarning()
 
-        NotificationCenter.default.addObserver(
+        notificationObserver = NotificationCenter.default.addObserver(
             forName: ProcessInfo.thermalStateDidChangeNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.thermalState = ProcessInfo.processInfo.thermalState
-            self?.updateWarning()
+            Task { @MainActor in
+                self?.thermalState = ProcessInfo.processInfo.thermalState
+                self?.updateWarning()
+            }
+        }
+    }
+
+    deinit {
+        if let observer = notificationObserver {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 

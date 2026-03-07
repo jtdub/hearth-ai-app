@@ -2,7 +2,12 @@ import Foundation
 
 enum DeviceCapability {
     static var availableMemoryBytes: Int64 {
-        Int64(os_proc_available_memory())
+        let available = Int64(os_proc_available_memory())
+        // os_proc_available_memory() returns 0 on the simulator
+        if available <= 0 {
+            return totalMemoryBytes
+        }
+        return available
     }
 
     static var totalMemoryBytes: Int64 {
