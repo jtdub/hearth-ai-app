@@ -55,6 +55,11 @@ struct SettingsView: View {
                     ] as? String ?? "1.0"
                     LabeledContent("Version", value: version)
                     LabeledContent("Powered by", value: "llama.cpp")
+                    // swiftlint:disable:next force_unwrapping
+                    let issuesURL = URL(string: "https://github.com/jtdub/hearth-ai-app/issues")!
+                    Link(destination: issuesURL) {
+                        Label("Report a Bug or Give Feedback", systemImage: "ladybug")
+                    }
                 }
 
                 Section("Licenses") {

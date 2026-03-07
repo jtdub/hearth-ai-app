@@ -56,9 +56,10 @@ final class HuggingFaceAPI: Sendable {
     }
 
     func downloadURL(repoId: String, fileName: String) -> URL {
-        let encoded = fileName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? fileName
+        let encodedRepo = repoId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repoId
+        let encodedFile = fileName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? fileName
         // swiftlint:disable:next force_unwrapping
-        return URL(string: "https://huggingface.co/\(repoId)/resolve/main/\(encoded)")!
+        return URL(string: "https://huggingface.co/\(encodedRepo)/resolve/main/\(encodedFile)")!
     }
 
     private func validateResponse(_ response: URLResponse) throws {

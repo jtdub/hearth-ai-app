@@ -1,17 +1,21 @@
 import Foundation
 import SwiftData
 
+@MainActor
 @Observable
 final class DownloadService: NSObject {
     private(set) var downloads: [String: DownloadInfo] = [:]
-    var onDownloadComplete: ((DownloadInfo) -> Void)?
+    var onDownloadComplete: (@MainActor (DownloadInfo) -> Void)?
 
     private let api = HuggingFaceAPI()
-    private var backgroundSession: URLSession!
-    private var taskToDownloadId: [Int: String] = [:]
+    private nonisolated(unsafe) var backgroundSession: URLSession!
+    private let delegateQueue = OperationQueue()
+    private let taskMapLock = NSLock()
+    private nonisolated(unsafe) var taskToDownloadId: [Int: String] = [:]
 
     override init() {
         super.init()
+        delegateQueue.maxConcurrentOperationCount = 1
         let config = URLSessionConfiguration.background(
             withIdentifier: "ai.hearth.download"
         )
@@ -20,8 +24,26 @@ final class DownloadService: NSObject {
         backgroundSession = URLSession(
             configuration: config,
             delegate: self,
-            delegateQueue: nil
+            delegateQueue: delegateQueue
         )
+    }
+
+    private func setTaskMapping(_ taskId: Int, downloadId: String) {
+        taskMapLock.lock()
+        defer { taskMapLock.unlock() }
+        taskToDownloadId[taskId] = downloadId
+    }
+
+    private nonisolated func getTaskMapping(_ taskId: Int) -> String? {
+        taskMapLock.lock()
+        defer { taskMapLock.unlock() }
+        return taskToDownloadId[taskId]
+    }
+
+    private nonisolated func removeTaskMapping(_ taskId: Int) {
+        taskMapLock.lock()
+        defer { taskMapLock.unlock() }
+        taskToDownloadId.removeValue(forKey: taskId)
     }
 
     var activeDownloads: [DownloadInfo] {
@@ -55,17 +77,20 @@ final class DownloadService: NSObject {
         info.task = task
         info.status = .downloading
         downloads[downloadId] = info
-        taskToDownloadId[task.taskIdentifier] = downloadId
+        setTaskMapping(task.taskIdentifier, downloadId: downloadId)
 
         task.resume()
     }
 
     func pauseDownload(id: String) {
         guard let info = downloads[id], let task = info.task else { return }
+        info.status = .paused
         task.cancel { [weak self] data in
-            DispatchQueue.main.async {
-                self?.downloads[id]?.resumeData = data
-                self?.downloads[id]?.status = .paused
+            Task { @MainActor in
+                guard let self else { return }
+                if case .paused = self.downloads[id]?.status {
+                    self.downloads[id]?.resumeData = data
+                }
             }
         }
     }
@@ -84,7 +109,7 @@ final class DownloadService: NSObject {
         info.task = task
         info.status = .downloading
         info.resumeData = nil
-        taskToDownloadId[task.taskIdentifier] = id
+        setTaskMapping(task.taskIdentifier, downloadId: id)
 
         task.resume()
     }
@@ -99,98 +124,95 @@ final class DownloadService: NSObject {
         downloads.removeValue(forKey: id)
     }
 
-    // MARK: - File Management
-
-    private func moveDownloadedFile(from tempURL: URL, downloadInfo: DownloadInfo) throws -> String {
-        let modelsDir = FileManager.modelsDirectory
-        let repoDir = modelsDir.appendingPathComponent(
-            downloadInfo.repoId.replacingOccurrences(of: "/", with: "_"),
-            isDirectory: true
-        )
-
-        try FileManager.default.createDirectory(
-            at: repoDir,
-            withIntermediateDirectories: true
-        )
-
-        let destURL = repoDir.appendingPathComponent(downloadInfo.fileName)
-
-        if FileManager.default.fileExists(atPath: destURL.path) {
-            try FileManager.default.removeItem(at: destURL)
-        }
-
-        try FileManager.default.moveItem(at: tempURL, to: destURL)
-
-        let repoComponent = downloadInfo.repoId.replacingOccurrences(of: "/", with: "_")
-        return "\(repoComponent)/\(downloadInfo.fileName)"
-    }
 }
 
 // MARK: - URLSessionDownloadDelegate
 
 extension DownloadService: URLSessionDownloadDelegate {
-    func urlSession(
+    nonisolated func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        guard let downloadId = taskToDownloadId[downloadTask.taskIdentifier],
-              let info = downloads[downloadId] else { return }
+        guard let downloadId = getTaskMapping(downloadTask.taskIdentifier) else { return }
 
+        let result: Result<String, Error>
         do {
-            let localPath = try moveDownloadedFile(from: location, downloadInfo: info)
-            DispatchQueue.main.async {
+            // Must move file synchronously before this method returns
+            // downloadId format is "owner/repo/fileName"
+            let parts = downloadId.components(separatedBy: "/")
+            let fileName = parts.last ?? ""
+            let repoId = parts.dropLast().joined(separator: "/")
+            let repoComponent = repoId.replacingOccurrences(of: "/", with: "_")
+            guard let appSupportDir = FileManager.default.urls(
+                for: .applicationSupportDirectory, in: .userDomainMask
+            ).first else {
+                throw URLError(.cannotCreateFile)
+            }
+            let modelsDir = appSupportDir.appendingPathComponent("Models", isDirectory: true)
+            let repoDir = modelsDir.appendingPathComponent(repoComponent, isDirectory: true)
+            try FileManager.default.createDirectory(at: repoDir, withIntermediateDirectories: true)
+            let destURL = repoDir.appendingPathComponent(fileName)
+            if FileManager.default.fileExists(atPath: destURL.path) {
+                try FileManager.default.removeItem(at: destURL)
+            }
+            try FileManager.default.moveItem(at: location, to: destURL)
+            result = .success("\(repoComponent)/\(fileName)")
+        } catch {
+            result = .failure(error)
+        }
+
+        removeTaskMapping(downloadTask.taskIdentifier)
+
+        Task { @MainActor [weak self] in
+            guard let self, let info = self.downloads[downloadId] else { return }
+            switch result {
+            case .success:
                 info.status = .completed
                 info.progress = 1.0
                 self.onDownloadComplete?(info)
-            }
-            _ = localPath
-        } catch {
-            DispatchQueue.main.async {
+            case .failure(let error):
                 info.status = .failed(error.localizedDescription)
             }
         }
-
-        taskToDownloadId.removeValue(forKey: downloadTask.taskIdentifier)
     }
 
-    func urlSession(
+    nonisolated func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) {
-        guard let downloadId = taskToDownloadId[downloadTask.taskIdentifier],
-              let info = downloads[downloadId] else { return }
+        guard let downloadId = getTaskMapping(downloadTask.taskIdentifier) else { return }
 
-        let total = totalBytesExpectedToWrite > 0
-            ? totalBytesExpectedToWrite
-            : info.fileSize
-        let progress = total > 0 ? Double(totalBytesWritten) / Double(total) : 0
+        let totalWritten = totalBytesWritten
+        let expectedTotal = totalBytesExpectedToWrite
 
-        DispatchQueue.main.async {
+        Task { @MainActor [weak self] in
+            guard let self, let info = self.downloads[downloadId] else { return }
+            let total = expectedTotal > 0 ? expectedTotal : info.fileSize
+            let progress = total > 0 ? Double(totalWritten) / Double(total) : 0
             info.progress = progress
         }
     }
 
-    func urlSession(
+    nonisolated func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didCompleteWithError error: (any Error)?
     ) {
-        guard let error,
-              let downloadId = taskToDownloadId[task.taskIdentifier],
-              let info = downloads[downloadId] else { return }
-
+        guard let error else { return }
         let nsError = error as NSError
-        if nsError.code == NSURLErrorCancelled {
-            return
-        }
+        if nsError.code == NSURLErrorCancelled { return }
 
-        DispatchQueue.main.async {
-            info.status = .failed(error.localizedDescription)
+        guard let downloadId = getTaskMapping(task.taskIdentifier) else { return }
+        removeTaskMapping(task.taskIdentifier)
+        let errorMessage = error.localizedDescription
+
+        Task { @MainActor [weak self] in
+            guard let self, let info = self.downloads[downloadId] else { return }
+            info.status = .failed(errorMessage)
         }
-        taskToDownloadId.removeValue(forKey: task.taskIdentifier)
     }
 }

@@ -119,16 +119,17 @@ struct LibraryView: View {
     // MARK: - Actions
 
     private func deleteModel(_ model: LocalModel) {
-        Task {
-            if inferenceService.loadedModelId == model.id {
+        let fileURL = model.absolutePath
+        let isLoaded = inferenceService.loadedModelId == model.id
+        Task { @MainActor in
+            if isLoaded {
                 await inferenceService.unloadModel()
             }
+            try? FileManager.default.removeItem(at: fileURL)
+            modelContext.delete(model)
+            try? modelContext.save()
+            modelToDelete = nil
         }
-
-        let fileURL = model.absolutePath
-        try? FileManager.default.removeItem(at: fileURL)
-        modelContext.delete(model)
-        modelToDelete = nil
     }
 }
 

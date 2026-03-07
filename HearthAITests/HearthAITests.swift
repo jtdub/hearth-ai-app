@@ -16,7 +16,7 @@ import Testing
     #expect(msg.content == "Hello")
 }
 
-@Test func chatViewModelClear() {
+@Test @MainActor func chatViewModelClear() {
     let viewModel = ChatViewModel()
     viewModel.messages.append(ChatMessage(role: .user, content: "test"))
     viewModel.clearMessages()
@@ -48,7 +48,7 @@ import Testing
     #expect(models.first?.repoId.contains("/") == true)
 }
 
-@Test func downloadInfoProgressFormat() {
+@Test @MainActor func downloadInfoProgressFormat() {
     let info = DownloadInfo(
         id: "test/model.gguf",
         repoId: "test",
@@ -59,7 +59,7 @@ import Testing
     #expect(info.formattedProgress.contains("/"))
 }
 
-@Test func modelStoreViewModelInit() {
+@Test @MainActor func modelStoreViewModelInit() {
     let viewModel = ModelStoreViewModel()
     #expect(!viewModel.featuredModels.isEmpty)
     #expect(viewModel.searchResults.isEmpty)
@@ -77,12 +77,12 @@ import Testing
     #expect(huge.canDownload == false)
 }
 
-@Test func thermalMonitorInitialState() {
+@Test @MainActor func thermalMonitorInitialState() {
     let monitor = ThermalMonitor()
     #expect(monitor.thermalState == ProcessInfo.processInfo.thermalState)
 }
 
-@Test func chatViewModelNewConversation() {
+@Test @MainActor func chatViewModelNewConversation() {
     let viewModel = ChatViewModel()
     viewModel.messages.append(ChatMessage(role: .user, content: "test"))
     viewModel.newConversation()
