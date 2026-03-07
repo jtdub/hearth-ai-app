@@ -145,3 +145,8 @@ GitHub Actions runs on every push and PR to `main`:
 - **SwiftLint** — Strict mode with `github-actions-logging` reporter
 - **Build & Test** — Builds the XCFramework, generates the project, compiles, and runs all tests on an iOS Simulator
 
+## License
+
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+
+Note: The vendored [llama.cpp](https://github.com/ggerganov/llama.cpp) library has its own [MIT License](Packages/LlamaCpp/vendored/llama.cpp/LICENSE).
