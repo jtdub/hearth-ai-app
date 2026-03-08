@@ -1,6 +1,6 @@
 # Hearth AI
 
-An iOS app for running large language models entirely on-device using [llama.cpp](https://github.com/ggerganov/llama.cpp). Browse and download GGUF models from Hugging Face Hub, then chat with them locally — no server, no API keys, fully private.
+A multi-platform app (iOS, macOS, visionOS) for running large language models entirely on-device using [llama.cpp](https://github.com/ggerganov/llama.cpp). Browse and download GGUF models from Hugging Face Hub, then chat with them locally — no server, no API keys, fully private.
 
 ## Features
 
@@ -8,15 +8,20 @@ An iOS app for running large language models entirely on-device using [llama.cpp
 - **Model store** — Browse Hugging Face Hub, search for GGUF models, and see which ones fit your device's available memory
 - **Background downloads** — Download models with pause/resume support via background URLSession
 - **Conversation history** — Persistent chat history with SwiftData, multiple conversations, custom system prompts
+- **Document Q&A** — Import documents (text, PDF, photos via OCR), chunk them, and ask questions with TF-IDF retrieval
+- **Conversation memory** — Persistent personal knowledge base with TF-IDF relevance scoring, per-conversation toggle, and JSON export
+- **Share Extension** — Process shared text and URLs from other apps using your local models
+- **App Intents** — Siri and Shortcuts integration for asking questions, rewriting, translating, and summarizing text
 - **Device-aware** — Automatically filters models by available RAM, warns on tight fits, blocks models too large for your device
 - **Thermal management** — Monitors device temperature and pauses generation if the device overheats
 - **Memory safety** — Auto-unloads models on memory warnings and after 60 seconds in the background
+- **Multi-platform** — Runs on iOS, macOS, and visionOS with adaptive UI (tabs on compact, sidebar on regular)
 
 ## Requirements
 
-- iOS 17.0+
+- iOS 17.0+ / macOS 14.0+ / visionOS 1.0+
 - Xcode 16.3+
-- macOS 15+
+- macOS 15+ (for building)
 
 ## Getting Started
 
@@ -60,16 +65,25 @@ xcodegen generate
 Open `HearthAI.xcodeproj` in Xcode, select a simulator or device, and run. Or from the command line:
 
 ```bash
+# iOS
 xcodebuild build -project HearthAI.xcodeproj -scheme HearthAI \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   CODE_SIGNING_ALLOWED=NO EXCLUDED_ARCHS='x86_64'
+
+# macOS
+xcodebuild build -project HearthAI.xcodeproj -scheme HearthAI \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
 ```
 
 ## Usage
 
 1. **Download a model** — Go to the Models tab, pick a recommended model or search for one. The app shows which models are compatible with your device's memory.
-2. **Load a model** — Go to the Library tab and tap a downloaded model to load it.
+2. **Load a model** — Tap the brain icon in Chat or go to the Library tab to load a downloaded model.
 3. **Chat** — Switch to the Chat tab and start a conversation. Responses stream token-by-token.
+4. **Import documents** — Go to the Documents tab to import text, PDFs, or photos (OCR). Attach a document to a conversation for Q&A.
+5. **Manage memories** — Go to the Memory tab to add personal facts, preferences, and instructions that personalize conversations.
+6. **Share Extension** — Share text or URLs from any app to process them with your local model.
+7. **Shortcuts** — Use Siri or the Shortcuts app to ask Hearth AI questions, rewrite, translate, or summarize text.
 
 ### Recommended Models
 
@@ -92,13 +106,22 @@ HearthAI/
     Chat/           Chat UI and view model
     ModelStore/     Model browsing and download
     Library/        Downloaded model management
+    Documents/      Document import and management
+    Memory/         Personal knowledge base management
     Settings/       App settings
-  Models/         SwiftData models (LocalModel, Conversation, Message)
+    AppIntents/     Siri and Shortcuts integration
+    SharedProcessing/  Shared text processing UI
+  Models/         SwiftData models (LocalModel, Conversation, Message,
+                    Document, DocumentChunk, Memory)
   Services/       Core services
     Inference/      LlamaContext wrapper, model loading, streaming generation
     Download/       Background URLSession download manager
     HuggingFace/    HF Hub REST API client
     Thermal/        Device thermal state monitoring
+    DocumentProcessing/  Chunking and chunk selection services
+    MemoryProcessing/    Memory selection with TF-IDF scoring
+  Shared/         Constants, extensions, shared types
+HearthAI ShareExtension/  Share Extension target
 Packages/
   LlamaCpp/       Swift package wrapping llama.cpp via XCFramework
 scripts/          Build and test helper scripts
@@ -111,6 +134,8 @@ scripts/          Build and test helper scripts
 - **`@MainActor` services** — All `@Observable` services and view models are main-actor-isolated for thread safety
 - **Background downloads** — Uses `URLSessionDownloadDelegate` with `NSLock`-protected task mapping for cross-isolation-domain safety
 - **Metal GPU acceleration** — llama.cpp is linked with Metal, MetalPerformanceShaders, and Accelerate frameworks
+- **App Group shared container** — SwiftData store lives in the App Group container so the Share Extension can access model data
+- **TF-IDF retrieval** — Both document chunks and memories use TF-IDF scoring for relevance-based context injection within token budgets
 
 ## Development
 
@@ -120,8 +145,9 @@ Uses the Swift Testing framework (`@Test` macro):
 
 ```bash
 xcodebuild test -project HearthAI.xcodeproj -scheme HearthAI \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
-  CODE_SIGNING_ALLOWED=NO EXCLUDED_ARCHS='x86_64'
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  CODE_SIGNING_ALLOWED=NO EXCLUDED_ARCHS='x86_64' \
+  -only-testing:HearthAITests -parallel-testing-enabled YES
 ```
 
 ### Linting

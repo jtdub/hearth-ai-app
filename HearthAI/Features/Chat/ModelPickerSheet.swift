@@ -16,6 +16,9 @@ struct ModelPickerSheet: View {
                         systemImage: "square.stack.3d.up.slash",
                         description: Text("Download a model from the Models tab first.")
                     )
+                    .onAppear {
+                        print("🔍 ModelPickerSheet: Query returned 0 models")
+                    }
                 } else {
                     List(models) { model in
                         Button {
@@ -46,10 +49,18 @@ struct ModelPickerSheet: View {
                         }
                         .disabled(inferenceService.isLoading)
                     }
+                    .onAppear {
+                        print("✅ ModelPickerSheet: Query found \(models.count) model(s)")
+                        for model in models {
+                            print("   - \(model.displayName) (\(model.fileName))")
+                        }
+                    }
                 }
             }
             .navigationTitle("Select Model")
-            #if !os(macOS)
+            #if os(macOS)
+            .frame(minWidth: 400, minHeight: 300)
+            #else
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
