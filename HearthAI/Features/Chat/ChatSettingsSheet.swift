@@ -5,7 +5,8 @@ struct ChatSettingsSheet: View {
     @State var systemPrompt: String
     @State var temperature: Float
     @State var topP: Float
-    let onSave: (String, Float, Float) -> Void
+    @State var useMemory: Bool
+    let onSave: (String, Float, Float, Bool) -> Void
 
     var body: some View {
         NavigationStack {
@@ -38,6 +39,15 @@ struct ChatSettingsSheet: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
+                Section("Memory") {
+                    Toggle("Use Memory", isOn: $useMemory)
+                    Text(
+                        "Include personal memories in context."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
             }
             .navigationTitle("Chat Settings")
             #if !os(macOS)
@@ -49,7 +59,10 @@ struct ChatSettingsSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(systemPrompt, temperature, topP)
+                        onSave(
+                            systemPrompt, temperature,
+                            topP, useMemory
+                        )
                         dismiss()
                     }
                 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum NavigationItem: Hashable {
-    case chat, documents, models, library, settings
+    case chat, documents, memory, models, library, settings
 }
 
 struct ContentView: View {
@@ -31,6 +31,9 @@ struct TabContentView: View {
             DocumentsView()
                 .tabItem { Label("Documents", systemImage: "doc.text.magnifyingglass") }
 
+            MemoryView()
+                .tabItem { Label("Memory", systemImage: "brain.head.profile") }
+
             ModelStoreView()
                 .tabItem { Label("Models", systemImage: "square.grid.2x2") }
 
@@ -53,6 +56,8 @@ struct SidebarContentView: View {
                     .tag(NavigationItem.chat)
                 Label("Documents", systemImage: "doc.text.magnifyingglass")
                     .tag(NavigationItem.documents)
+                Label("Memory", systemImage: "brain.head.profile")
+                    .tag(NavigationItem.memory)
                 Label("Models", systemImage: "square.grid.2x2")
                     .tag(NavigationItem.models)
                 Label("Library", systemImage: "internaldrive")
@@ -67,6 +72,8 @@ struct SidebarContentView: View {
                 ChatView()
             case .documents:
                 DocumentsView()
+            case .memory:
+                MemoryView()
             case .models:
                 ModelStoreView()
             case .library:

@@ -12,7 +12,7 @@ struct HearthAIApp: App {
         do {
             modelContainer = try ModelContainer(
                 for: LocalModel.self, Conversation.self, Message.self,
-                Document.self, DocumentChunk.self
+                Document.self, DocumentChunk.self, Memory.self
             )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")

@@ -14,7 +14,7 @@ enum TestModelContainer {
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
             let container = try ModelContainer(
                 for: Conversation.self, Message.self, LocalModel.self,
-                Document.self, DocumentChunk.self,
+                Document.self, DocumentChunk.self, Memory.self,
                 configurations: config
             )
             _container = container
@@ -27,6 +27,7 @@ enum TestModelContainer {
     }
 
     static func cleanUp(_ context: ModelContext) throws {
+        try context.fetch(FetchDescriptor<Memory>()).forEach { context.delete($0) }
         try context.fetch(FetchDescriptor<DocumentChunk>()).forEach { context.delete($0) }
         try context.fetch(FetchDescriptor<Document>()).forEach { context.delete($0) }
         try context.fetch(FetchDescriptor<Message>()).forEach { context.delete($0) }

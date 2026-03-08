@@ -13,4 +13,5 @@ enum Constants {
     static let defaultChunkOverlap: Int = 50
     static let maxDocumentChunksInPrompt: Int = 3
     static let documentTokenBudgetFraction: Float = 0.6
+    static let memoryTokenBudgetFraction: Float = 0.15
 }
