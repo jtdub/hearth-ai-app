@@ -34,6 +34,7 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_FILE: HearthAI/Info.plist
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
         INFOPLIST_KEY_UILaunchScreen_Generation: true
@@ -43,8 +44,39 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: true
+        CODE_SIGN_ENTITLEMENTS: HearthAI/HearthAI.entitlements
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
     dependencies:
       - package: LlamaCpp
+      - target: HearthAIShareExtension
+        embed: true
+
+  HearthAIShareExtension:
+    type: app-extension
+    supportedDestinations: [iOS, macOS, visionOS]
+    sources:
+      - path: "HearthAI ShareExtension"
+      - path: HearthAI/Shared/SharedTypes
+    info:
+      path: "HearthAI ShareExtension/Info.plist"
+      properties:
+        CFBundleDisplayName: "Hearth AI Share"
+        NSExtension:
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareViewController"
+          NSExtensionPointIdentifier: com.apple.share-services
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: "HearthAI ShareExtension/HearthAIShareExtension.entitlements"
+        PRODUCT_BUNDLE_IDENTIFIER: ai.hearth.HearthAI.ShareExtension
+        SKIP_INSTALL: true
+        GENERATE_INFOPLIST_FILE: true
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
 
   HearthAITests:
     type: bundle.unit-test
@@ -69,6 +101,7 @@ schemes:
     build:
       targets:
         HearthAI: all
+        HearthAIShareExtension: all
         HearthAITests: [test]
     test:
       targets:

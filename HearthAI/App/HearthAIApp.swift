@@ -4,11 +4,15 @@ import SwiftData
 @main
 struct HearthAIApp: App {
     @State private var appState = AppState()
+    @State private var sharedRequestHandler = SharedRequestHandler()
     private let modelContainer: ModelContainer
+    private let modelSync = SharedModelSync()
 
     init() {
         do {
-            modelContainer = try ModelContainer(for: LocalModel.self, Conversation.self, Message.self)
+            modelContainer = try ModelContainer(
+                for: LocalModel.self, Conversation.self, Message.self
+            )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
@@ -20,8 +24,19 @@ struct HearthAIApp: App {
                 .environment(appState)
                 .environment(appState.inferenceService)
                 .environment(appState.downloadService)
+                .environment(sharedRequestHandler)
                 .onAppear {
                     setupDownloadCompletion()
+                    syncModelList()
+                }
+                .onOpenURL { url in
+                    sharedRequestHandler.handleURL(url)
+                }
+                .sheet(item: sharedRequestBinding) { _ in
+                    SharedRequestView()
+                        .environment(sharedRequestHandler)
+                        .environment(appState.inferenceService)
+                        .modelContainer(modelContainer)
                 }
         }
         #if os(macOS)
@@ -40,10 +55,22 @@ struct HearthAIApp: App {
         #endif
     }
 
+    private var sharedRequestBinding: Binding<SharedInferenceRequest?> {
+        Binding(
+            get: { sharedRequestHandler.pendingRequest },
+            set: { _ in sharedRequestHandler.dismiss() }
+        )
+    }
+
     private func setupDownloadCompletion() {
         appState.downloadService.onDownloadComplete = { [appState] info in
             saveDownloadedModel(info: info, appState: appState)
         }
+    }
+
+    @MainActor
+    private func syncModelList() {
+        modelSync.syncModels(context: modelContainer.mainContext)
     }
 
     @MainActor
@@ -79,6 +106,9 @@ struct HearthAIApp: App {
 
         context.insert(model)
         try? context.save()
+
+        // Sync model list to shared container for extensions
+        modelSync.syncModels(context: context)
     }
 
     private func guessModelFamily(_ repoId: String) -> String {
