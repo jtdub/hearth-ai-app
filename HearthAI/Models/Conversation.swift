@@ -12,6 +12,7 @@ final class Conversation {
     var topP: Float
     var contextLength: Int32
     var modelId: String?
+    var documentId: UUID?
 
     @Relationship(deleteRule: .cascade, inverse: \Message.conversation)
     var messages: [Message] = []
@@ -22,7 +23,8 @@ final class Conversation {
         temperature: Float = 0.7,
         topP: Float = 0.9,
         contextLength: Int32 = 2048,
-        modelId: String? = nil
+        modelId: String? = nil,
+        documentId: UUID? = nil
     ) {
         self.id = UUID()
         self.title = title
@@ -33,5 +35,6 @@ final class Conversation {
         self.topP = topP
         self.contextLength = contextLength
         self.modelId = modelId
+        self.documentId = documentId
     }
 }
