@@ -74,10 +74,10 @@ jobs:
             echo "destination=generic/platform=iOS Simulator" >> "$GITHUB_OUTPUT"
           else
             echo "Found simulator: $SIM_NAME ($SIM_UDID)"
-            echo "destination=platform=iOS Simulator,name=$SIM_NAME" >> "$GITHUB_OUTPUT"
-            # Pre-boot simulator to avoid test hangs
+            echo "destination=platform=iOS Simulator,id=$SIM_UDID" >> "$GITHUB_OUTPUT"
+            # Pre-boot simulator and wait until fully booted
             xcrun simctl boot "$SIM_UDID" 2>/dev/null || true
-            sleep 5
+            xcrun simctl bootstatus "$SIM_UDID" -b 2>/dev/null || true
           fi
 
       - name: Build
@@ -93,13 +93,16 @@ jobs:
       - name: Test
         timeout-minutes: 10
         run: |
+          set -o pipefail
           xcodebuild test \
             -project HearthAI.xcodeproj \
             -scheme HearthAI \
             -destination '${{ steps.simulator.outputs.destination }}' \
+            -only-testing:HearthAITests \
+            -parallel-testing-enabled YES \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS='x86_64' \
-            2>&1 | tail -100
+            2>&1 | tee /dev/stderr | tail -100
 
   build-and-test-macos:
     name: Build & Test (macOS)
@@ -140,9 +143,12 @@ jobs:
       - name: Test
         timeout-minutes: 10
         run: |
+          set -o pipefail
           xcodebuild test \
             -project HearthAI.xcodeproj \
             -scheme HearthAI \
             -destination 'platform=macOS' \
+            -only-testing:HearthAITests \
+            -parallel-testing-enabled YES \
             CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tail -100
+            2>&1 | tee /dev/stderr | tail -100
