@@ -20,7 +20,9 @@ final class DownloadService: NSObject {
             withIdentifier: "ai.hearth.download"
         )
         config.isDiscretionary = false
+        #if os(iOS) || os(visionOS)
         config.sessionSendsLaunchEvents = true
+        #endif
         backgroundSession = URLSession(
             configuration: config,
             delegate: self,

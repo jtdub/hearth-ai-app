@@ -49,13 +49,15 @@ struct ModelPickerSheet: View {
                 }
             }
             .navigationTitle("Select Model")
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
                 if inferenceService.isModelLoaded {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .primaryAction) {
                         Button("Unload") {
                             Task { await inferenceService.unloadModel() }
                         }

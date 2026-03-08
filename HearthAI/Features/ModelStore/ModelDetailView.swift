@@ -44,7 +44,9 @@ struct ModelDetailView: View {
             }
         }
         .navigationTitle(model.displayName)
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .task {
             await loadFiles()
         }

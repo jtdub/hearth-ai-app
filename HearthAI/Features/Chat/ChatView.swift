@@ -21,7 +21,9 @@ struct ChatView: View {
                 inputBar
             }
             .navigationTitle("Hearth AI")
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar { chatToolbar }
             .sheet(isPresented: $showModelPicker) {
                 ModelPickerSheet()
@@ -44,7 +46,7 @@ struct ChatView: View {
 
     @ToolbarContentBuilder
     private var chatToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .navigation) {
             HStack(spacing: 12) {
                 Button {
                     showConversations = true
@@ -65,7 +67,7 @@ struct ChatView: View {
                 }
             }
         }
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button {
                     viewModel.newConversation()

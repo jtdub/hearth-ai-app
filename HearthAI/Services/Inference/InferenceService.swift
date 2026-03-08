@@ -1,6 +1,8 @@
 import Foundation
 import LlamaCpp
+#if canImport(UIKit)
 import UIKit
+#endif
 
 @MainActor
 @Observable
@@ -12,6 +14,9 @@ final class InferenceService {
 
     private var context: LlamaContext?
     private nonisolated(unsafe) var notificationObservers: [Any] = []
+    #if os(macOS)
+    private nonisolated(unsafe) var memoryPressureSource: DispatchSourceMemoryPressure?
+    #endif
 
     init() {
         setupMemoryWarningObserver()
@@ -23,6 +28,9 @@ final class InferenceService {
             NotificationCenter.default.removeObserver(observer)
         }
         backgroundTask?.cancel()
+        #if os(macOS)
+        memoryPressureSource?.cancel()
+        #endif
     }
 
     // MARK: - Model Lifecycle
@@ -111,6 +119,7 @@ final class InferenceService {
     // MARK: - Memory Management
 
     private func setupMemoryWarningObserver() {
+        #if canImport(UIKit)
         let observer = NotificationCenter.default.addObserver(
             forName: UIApplication.didReceiveMemoryWarningNotification,
             object: nil,
@@ -120,9 +129,22 @@ final class InferenceService {
             Task { @MainActor in await self.unloadModel() }
         }
         notificationObservers.append(observer)
+        #elseif os(macOS)
+        let source = DispatchSource.makeMemoryPressureSource(
+            eventMask: [.warning, .critical],
+            queue: .main
+        )
+        source.setEventHandler { [weak self] in
+            guard let self else { return }
+            Task { @MainActor in await self.unloadModel() }
+        }
+        source.resume()
+        memoryPressureSource = source
+        #endif
     }
 
     private func setupBackgroundObservers() {
+        #if canImport(UIKit)
         let bgObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
@@ -140,6 +162,8 @@ final class InferenceService {
             Task { @MainActor in self?.cancelBackgroundUnloadTimer() }
         }
         notificationObservers.append(fgObserver)
+        #endif
+        // macOS: no background unload — apps don't suspend like iOS
     }
 
     private nonisolated(unsafe) var backgroundTask: Task<Void, Never>?
