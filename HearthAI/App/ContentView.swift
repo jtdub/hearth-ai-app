@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum NavigationItem: Hashable {
-    case chat, models, library, settings
+    case chat, documents, models, library, settings
 }
 
 struct ContentView: View {
@@ -28,6 +28,9 @@ struct TabContentView: View {
             ChatView()
                 .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
 
+            DocumentsView()
+                .tabItem { Label("Documents", systemImage: "doc.text.magnifyingglass") }
+
             ModelStoreView()
                 .tabItem { Label("Models", systemImage: "square.grid.2x2") }
 
@@ -48,6 +51,8 @@ struct SidebarContentView: View {
             List(selection: $selection) {
                 Label("Chat", systemImage: "bubble.left.and.bubble.right")
                     .tag(NavigationItem.chat)
+                Label("Documents", systemImage: "doc.text.magnifyingglass")
+                    .tag(NavigationItem.documents)
                 Label("Models", systemImage: "square.grid.2x2")
                     .tag(NavigationItem.models)
                 Label("Library", systemImage: "internaldrive")
@@ -60,6 +65,8 @@ struct SidebarContentView: View {
             switch selection {
             case .chat:
                 ChatView()
+            case .documents:
+                DocumentsView()
             case .models:
                 ModelStoreView()
             case .library:

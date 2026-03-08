@@ -14,6 +14,9 @@ final class ChatViewModel {
     var activeConversation: Conversation?
     var modelContext: ModelContext?
 
+    // Document Q&A
+    var attachedDocument: Document?
+
     private var config = InferenceConfiguration.default
 
     var conversationConfig: InferenceConfiguration {
@@ -113,10 +116,26 @@ final class ChatViewModel {
         }
     }
 
+    // MARK: - Document Attachment
+
+    func attachDocument(_ document: Document) {
+        attachedDocument = document
+        ensureActiveConversation()
+        activeConversation?.documentId = document.id
+        try? modelContext?.save()
+    }
+
+    func detachDocument() {
+        attachedDocument = nil
+        activeConversation?.documentId = nil
+        try? modelContext?.save()
+    }
+
     // MARK: - Conversation Management
 
     func newConversation() {
         activeConversation = nil
+        attachedDocument = nil
         messages.removeAll()
         streamingText = ""
     }
@@ -127,6 +146,20 @@ final class ChatViewModel {
             .sorted { $0.createdAt < $1.createdAt }
             .map { ChatMessage(role: $0.role, content: $0.content) }
         streamingText = ""
+        loadAttachedDocument(for: conversation)
+    }
+
+    private func loadAttachedDocument(for conversation: Conversation) {
+        guard let docId = conversation.documentId,
+              let context = modelContext else {
+            attachedDocument = nil
+            return
+        }
+        var descriptor = FetchDescriptor<Document>(
+            predicate: #Predicate { $0.id == docId }
+        )
+        descriptor.fetchLimit = 1
+        attachedDocument = try? context.fetch(descriptor).first
     }
 
     func deleteConversation(_ conversation: Conversation) {
@@ -190,16 +223,65 @@ final class ChatViewModel {
     // MARK: - Prompt Building
 
     private func buildPrompt() -> String {
-        let systemPrompt = activeConversation?.systemPrompt ?? "You are a helpful assistant."
+        let basePrompt = activeConversation?.systemPrompt
+            ?? "You are a helpful assistant."
+        let documentContext = buildDocumentContext()
+        let systemPrompt = documentContext.isEmpty
+            ? basePrompt
+            : basePrompt + "\n\n" + documentContext
+
         var prompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
 
         for message in messages {
             let role = message.role == .user ? "user" : "assistant"
-            prompt += "<|im_start|>\(role)\n\(message.content)<|im_end|>\n"
+            prompt += "<|im_start|>\(role)\n\(message.content)"
+            prompt += "<|im_end|>\n"
         }
 
         prompt += "<|im_start|>assistant\n"
         return prompt
+    }
+
+    private func buildDocumentContext() -> String {
+        guard let document = attachedDocument,
+              !document.chunks.isEmpty else {
+            return ""
+        }
+
+        let lastUserMessage = messages.last {
+            $0.role == .user
+        }?.content ?? ""
+
+        let contextLength = Int(
+            activeConversation?.contextLength
+                ?? Constants.defaultContextSize
+        )
+        let tokenBudget = Int(
+            Float(contextLength)
+                * Constants.documentTokenBudgetFraction
+        )
+
+        let selectedChunks = ChunkSelectorService.selectChunks(
+            query: lastUserMessage,
+            chunks: document.chunks,
+            maxTokenBudget: tokenBudget
+        )
+
+        guard !selectedChunks.isEmpty else { return "" }
+
+        let excerpts = selectedChunks
+            .sorted { $0.chunkIndex < $1.chunkIndex }
+            .map(\.content)
+            .joined(separator: "\n\n---\n\n")
+
+        return """
+        Answer based on the following document excerpts \
+        from "\(document.title)":
+
+        ---
+        \(excerpts)
+        ---
+        """
     }
 }
 

@@ -7,4 +7,10 @@ enum Constants {
     static let defaultRepeatPenalty: Float = 1.1
     static let defaultMaxTokens: Int32 = 512
     static let backgroundUnloadTimeout: TimeInterval = 60
+
+    // Document processing
+    static let defaultChunkSize: Int = 512
+    static let defaultChunkOverlap: Int = 50
+    static let maxDocumentChunksInPrompt: Int = 3
+    static let documentTokenBudgetFraction: Float = 0.6
 }

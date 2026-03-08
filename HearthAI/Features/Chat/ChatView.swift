@@ -10,6 +10,7 @@ struct ChatView: View {
     @State private var showModelPicker = false
     @State private var showConversations = false
     @State private var showChatSettings = false
+    @State private var showDocumentPicker = false
 
     var body: some View {
         NavigationStack {
@@ -17,6 +18,9 @@ struct ChatView: View {
                 messageList
                 if appState.thermalMonitor.shouldWarnUser {
                     thermalWarning
+                }
+                if viewModel.attachedDocument != nil {
+                    documentBadge
                 }
                 inputBar
             }
@@ -33,6 +37,11 @@ struct ChatView: View {
             }
             .sheet(isPresented: $showChatSettings) {
                 chatSettingsSheet
+            }
+            .sheet(isPresented: $showDocumentPicker) {
+                DocumentPickerSheet(onSelect: { document in
+                    viewModel.attachDocument(document)
+                })
             }
         }
         .onAppear {
@@ -188,10 +197,41 @@ struct ChatView: View {
         .padding(.top, 80)
     }
 
+    private var documentBadge: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "doc.text.fill")
+                .font(.caption)
+            Text(viewModel.attachedDocument?.title ?? "")
+                .font(.caption)
+                .lineLimit(1)
+            Button {
+                viewModel.detachDocument()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.caption)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(.blue.opacity(0.1))
+        .clipShape(Capsule())
+        .padding(.horizontal)
+        .padding(.top, 4)
+    }
+
     // MARK: - Input Bar
 
     private var inputBar: some View {
         HStack(alignment: .bottom, spacing: 8) {
+            Button {
+                showDocumentPicker = true
+            } label: {
+                Image(systemName: "doc.badge.plus")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            }
+
             TextField("Message", text: $inputText, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...5)
