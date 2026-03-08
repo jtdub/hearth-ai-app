@@ -40,6 +40,7 @@
 		C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397BD3F6A93E6069059BBBBF /* AppState.swift */; };
 		CBB8F9486DF5B9A8F6F350A7 /* DeviceCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79297A2500C2BFE5F893531F /* DeviceCapability.swift */; };
 		CDB4579A512B12F942C6E768 /* ModelDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D180D8E597FDFD2F857CFD /* ModelDetailView.swift */; };
+		CE92A1FB39AD10CF859706C5 /* TestModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80C3E2B605DDA7CD3DF5A1E /* TestModelContainer.swift */; };
 		DFE0909D9533627F1E418FED /* DownloadServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B7417DFD3FFE4FD4E79869 /* DownloadServiceTests.swift */; };
 		F09B9F855596430552F5A8FE /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890BDB102F2FE40261F5A508 /* ChatViewModel.swift */; };
 		F1AD3F2C8048B14FC787BF4D /* FileManager+AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */; };
@@ -98,6 +99,7 @@
 		CE68C23BD50C2CE6816C8530 /* LocalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalModel.swift; sourceTree = "<group>"; };
 		E0E39895107391568ACB967A /* DeviceCapabilityEdgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCapabilityEdgeTests.swift; sourceTree = "<group>"; };
 		E1307661B3414B71F26366B8 /* InferenceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceConfiguration.swift; sourceTree = "<group>"; };
+		E80C3E2B605DDA7CD3DF5A1E /* TestModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelContainer.swift; sourceTree = "<group>"; };
 		E903921FAA09285C7EC06626 /* HearthAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearthAIApp.swift; sourceTree = "<group>"; };
 		EA5163E146981BFA10057E46 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,6 +143,7 @@
 				29482A421FB1811401D6034E /* HearthAITests.swift */,
 				C31143EB8502183C8C805EDD /* HuggingFaceTests.swift */,
 				8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */,
+				E80C3E2B605DDA7CD3DF5A1E /* TestModelContainer.swift */,
 			);
 			path = HearthAITests;
 			sourceTree = "<group>";
@@ -470,6 +473,7 @@
 				FDF5740963252281A3030A24 /* HearthAITests.swift in Sources */,
 				8A5B36588755EFFB4BEA89EF /* HuggingFaceTests.swift in Sources */,
 				910A8C1FFD6C00FCB79D6E0D /* SwiftDataCascadeTests.swift in Sources */,
+				CE92A1FB39AD10CF859706C5 /* TestModelContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -538,14 +542,17 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Debug;
 		};
@@ -553,6 +560,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"BUNDLE_LOADER[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/Contents/MacOS/HearthAI";
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -560,9 +568,14 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAITests;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/HearthAI";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/Contents/MacOS/HearthAI";
 			};
 			name = Debug;
 		};
@@ -614,13 +627,16 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Release;
 		};
@@ -642,9 +658,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
 		};
@@ -666,9 +686,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -676,6 +700,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"BUNDLE_LOADER[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/Contents/MacOS/HearthAI";
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -683,9 +708,14 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAITests;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/HearthAI";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/HearthAI.app/Contents/MacOS/HearthAI";
 			};
 			name = Release;
 		};

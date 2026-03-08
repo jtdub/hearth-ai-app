@@ -1,4 +1,9 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 struct MessageBubble: View {
     let role: MessageRole
@@ -32,7 +37,7 @@ struct MessageBubble: View {
                     .textSelection(.enabled)
                     .contextMenu {
                         Button {
-                            UIPasteboard.general.string = content
+                            copyToClipboard(content)
                             showCopied = true
                         } label: {
                             Label("Copy", systemImage: "doc.on.doc")
@@ -59,11 +64,24 @@ struct MessageBubble: View {
     }
 
     private var bubbleColor: Color {
+        #if canImport(UIKit)
         role == .user ? .accentColor : Color(.systemGray5)
+        #else
+        role == .user ? .accentColor : Color(nsColor: .controlBackgroundColor)
+        #endif
     }
 
     private var bubbleShape: some Shape {
         RoundedRectangle(cornerRadius: 16, style: .continuous)
+    }
+
+    private func copyToClipboard(_ text: String) {
+        #if canImport(UIKit)
+        UIPasteboard.general.string = text
+        #elseif canImport(AppKit)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        #endif
     }
 }
 

@@ -99,7 +99,9 @@ struct LicensesView: View {
             }
         }
         .navigationTitle("Licenses")
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 

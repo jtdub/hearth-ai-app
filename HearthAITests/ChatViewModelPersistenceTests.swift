@@ -3,173 +3,176 @@ import SwiftData
 import Testing
 @testable import HearthAI
 
-// MARK: - Helpers
-
+@Suite(.serialized)
 @MainActor
-private func makeContext() throws -> ModelContext {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try ModelContainer(
-        for: Conversation.self, Message.self, LocalModel.self,
-        configurations: config
-    )
-    return container.mainContext
-}
+struct ChatViewModelPersistenceTests {
 
-// MARK: - Stop-Generating Guard
+    // MARK: - Stop-Generating Guard
 
-@Test @MainActor func stopGeneratingWhenNotGeneratingIsNoOp() async {
-    let viewModel = ChatViewModel()
-    viewModel.streamingText = "partial text"
-    viewModel.isGenerating = false
+    @Test func stopGeneratingWhenNotGeneratingIsNoOp() async {
+        let viewModel = ChatViewModel()
+        viewModel.streamingText = "partial text"
+        viewModel.isGenerating = false
 
-    await viewModel.stopGenerating()
+        await viewModel.stopGenerating()
 
-    #expect(viewModel.messages.isEmpty, "No message should be appended when not generating")
-    #expect(viewModel.streamingText == "partial text", "Text should remain unchanged")
-}
+        #expect(viewModel.messages.isEmpty, "No message should be appended when not generating")
+        #expect(viewModel.streamingText == "partial text", "Text should remain unchanged")
+    }
 
-@Test @MainActor func stopGeneratingSavesPartialText() async {
-    let viewModel = ChatViewModel()
-    viewModel.isGenerating = true
-    viewModel.streamingText = "Hello world"
+    @Test func stopGeneratingSavesPartialText() async {
+        let viewModel = ChatViewModel()
+        viewModel.isGenerating = true
+        viewModel.streamingText = "Hello world"
 
-    await viewModel.stopGenerating()
+        await viewModel.stopGenerating()
 
-    #expect(viewModel.messages.count == 1)
-    #expect(viewModel.messages.first?.role == .assistant)
-    #expect(viewModel.messages.first?.content == "Hello world")
-    #expect(viewModel.isGenerating == false)
-    #expect(viewModel.streamingText.isEmpty)
-}
+        #expect(viewModel.messages.count == 1)
+        #expect(viewModel.messages.first?.role == .assistant)
+        #expect(viewModel.messages.first?.content == "Hello world")
+        #expect(viewModel.isGenerating == false)
+        #expect(viewModel.streamingText.isEmpty)
+    }
 
-@Test @MainActor func stopGeneratingWithEmptyTextAppendsNothing() async {
-    let viewModel = ChatViewModel()
-    viewModel.isGenerating = true
-    viewModel.streamingText = ""
+    @Test func stopGeneratingWithEmptyTextAppendsNothing() async {
+        let viewModel = ChatViewModel()
+        viewModel.isGenerating = true
+        viewModel.streamingText = ""
 
-    await viewModel.stopGenerating()
+        await viewModel.stopGenerating()
 
-    #expect(viewModel.messages.isEmpty)
-    #expect(viewModel.isGenerating == false)
-}
+        #expect(viewModel.messages.isEmpty)
+        #expect(viewModel.isGenerating == false)
+    }
 
-// MARK: - Load Conversation
+    // MARK: - Load Conversation
 
-@Test @MainActor func loadConversationPopulatesMessages() throws {
-    let context = try makeContext()
-    let conversation = Conversation(title: "Test")
-    context.insert(conversation)
+    @Test func loadConversationPopulatesMessages() throws {
+        let context = try TestModelContainer.makeContext()
+        try TestModelContainer.cleanUp(context)
 
-    let msg1 = Message(role: .user, content: "Hello")
-    msg1.conversation = conversation
-    conversation.messages.append(msg1)
+        let conversation = Conversation(title: "Test")
+        context.insert(conversation)
 
-    let msg2 = Message(role: .assistant, content: "Hi there")
-    msg2.conversation = conversation
-    conversation.messages.append(msg2)
-    try context.save()
+        let msg1 = Message(role: .user, content: "Hello")
+        msg1.conversation = conversation
+        conversation.messages.append(msg1)
 
-    let viewModel = ChatViewModel()
-    viewModel.modelContext = context
-    viewModel.loadConversation(conversation)
+        let msg2 = Message(role: .assistant, content: "Hi there")
+        msg2.conversation = conversation
+        conversation.messages.append(msg2)
+        try context.save()
 
-    #expect(viewModel.messages.count == 2)
-    #expect(viewModel.activeConversation?.id == conversation.id)
-    #expect(viewModel.messages.first?.role == .user)
-    #expect(viewModel.messages.last?.role == .assistant)
-}
+        let viewModel = ChatViewModel()
+        viewModel.modelContext = context
+        viewModel.loadConversation(conversation)
 
-// MARK: - Delete Conversation
+        #expect(viewModel.messages.count == 2)
+        #expect(viewModel.activeConversation?.id == conversation.id)
+        #expect(viewModel.messages.first?.role == .user)
+        #expect(viewModel.messages.last?.role == .assistant)
+    }
 
-@Test @MainActor func deleteConversationRemovesFromContext() throws {
-    let context = try makeContext()
-    let conversation = Conversation(title: "To Delete")
-    context.insert(conversation)
-    try context.save()
+    // MARK: - Delete Conversation
 
-    let viewModel = ChatViewModel()
-    viewModel.modelContext = context
+    @Test func deleteConversationRemovesFromContext() throws {
+        let context = try TestModelContainer.makeContext()
+        try TestModelContainer.cleanUp(context)
 
-    viewModel.loadConversation(conversation)
-    viewModel.deleteConversation(conversation)
+        let conversation = Conversation(title: "To Delete")
+        context.insert(conversation)
+        try context.save()
 
-    #expect(viewModel.activeConversation == nil)
-    #expect(viewModel.messages.isEmpty)
+        let viewModel = ChatViewModel()
+        viewModel.modelContext = context
 
-    let descriptor = FetchDescriptor<Conversation>()
-    let remaining = try context.fetch(descriptor)
-    #expect(remaining.isEmpty)
-}
+        viewModel.loadConversation(conversation)
+        viewModel.deleteConversation(conversation)
 
-// MARK: - Clear Messages
+        #expect(viewModel.activeConversation == nil)
+        #expect(viewModel.messages.isEmpty)
 
-@Test @MainActor func clearMessagesDeletesConversationFromSwiftData() throws {
-    let context = try makeContext()
-    let conversation = Conversation(title: "Clear Me")
-    context.insert(conversation)
+        let descriptor = FetchDescriptor<Conversation>()
+        let remaining = try context.fetch(descriptor)
+        #expect(remaining.isEmpty)
+    }
 
-    let msg = Message(role: .user, content: "test")
-    msg.conversation = conversation
-    conversation.messages.append(msg)
-    try context.save()
+    // MARK: - Clear Messages
 
-    let viewModel = ChatViewModel()
-    viewModel.modelContext = context
-    viewModel.loadConversation(conversation)
+    @Test func clearMessagesDeletesConversationFromSwiftData() throws {
+        let context = try TestModelContainer.makeContext()
+        try TestModelContainer.cleanUp(context)
 
-    viewModel.clearMessages()
+        let conversation = Conversation(title: "Clear Me")
+        context.insert(conversation)
 
-    #expect(viewModel.messages.isEmpty)
-    #expect(viewModel.activeConversation == nil)
+        let msg = Message(role: .user, content: "test")
+        msg.conversation = conversation
+        conversation.messages.append(msg)
+        try context.save()
 
-    let conversations = try context.fetch(FetchDescriptor<Conversation>())
-    #expect(conversations.isEmpty)
-}
+        let viewModel = ChatViewModel()
+        viewModel.modelContext = context
+        viewModel.loadConversation(conversation)
 
-// MARK: - Update Conversation Settings
+        viewModel.clearMessages()
 
-@Test @MainActor func updateSettingsCreatesConversation() throws {
-    let context = try makeContext()
-    let viewModel = ChatViewModel()
-    viewModel.modelContext = context
+        #expect(viewModel.messages.isEmpty)
+        #expect(viewModel.activeConversation == nil)
 
-    #expect(viewModel.activeConversation == nil)
+        let conversations = try context.fetch(FetchDescriptor<Conversation>())
+        #expect(conversations.isEmpty)
+    }
 
-    viewModel.updateConversationSettings(
-        systemPrompt: "You are a pirate.",
-        temperature: 0.5,
-        topP: 0.8
-    )
+    // MARK: - Update Conversation Settings
 
-    #expect(viewModel.activeConversation != nil)
-    #expect(viewModel.activeConversation?.systemPrompt == "You are a pirate.")
-    #expect(viewModel.activeConversation?.temperature == 0.5)
-    #expect(viewModel.activeConversation?.topP == 0.8)
-}
+    @Test func updateSettingsCreatesConversation() throws {
+        let context = try TestModelContainer.makeContext()
+        try TestModelContainer.cleanUp(context)
 
-// MARK: - Conversation Config
+        let viewModel = ChatViewModel()
+        viewModel.modelContext = context
 
-@Test @MainActor func conversationConfigUsesConversationValues() throws {
-    let context = try makeContext()
-    let conversation = Conversation(
-        temperature: 0.3,
-        topP: 0.5
-    )
-    context.insert(conversation)
-    try context.save()
+        #expect(viewModel.activeConversation == nil)
 
-    let viewModel = ChatViewModel()
-    viewModel.modelContext = context
-    viewModel.loadConversation(conversation)
+        viewModel.updateConversationSettings(
+            systemPrompt: "You are a pirate.",
+            temperature: 0.5,
+            topP: 0.8
+        )
 
-    let config = viewModel.conversationConfig
-    #expect(config.temperature == 0.3)
-    #expect(config.topP == 0.5)
-}
+        #expect(viewModel.activeConversation != nil)
+        #expect(viewModel.activeConversation?.systemPrompt == "You are a pirate.")
+        #expect(viewModel.activeConversation?.temperature == 0.5)
+        #expect(viewModel.activeConversation?.topP == 0.8)
+    }
 
-@Test @MainActor func conversationConfigFallsBackToDefault() {
-    let viewModel = ChatViewModel()
-    let config = viewModel.conversationConfig
-    #expect(config.temperature == 0.7)
-    #expect(config.topP == 0.9)
+    // MARK: - Conversation Config
+
+    @Test func conversationConfigUsesConversationValues() throws {
+        let context = try TestModelContainer.makeContext()
+        try TestModelContainer.cleanUp(context)
+
+        let conversation = Conversation(
+            temperature: 0.3,
+            topP: 0.5
+        )
+        context.insert(conversation)
+        try context.save()
+
+        let viewModel = ChatViewModel()
+        viewModel.modelContext = context
+        viewModel.loadConversation(conversation)
+
+        let config = viewModel.conversationConfig
+        #expect(config.temperature == 0.3)
+        #expect(config.topP == 0.5)
+    }
+
+    @Test func conversationConfigFallsBackToDefault() {
+        let viewModel = ChatViewModel()
+        let config = viewModel.conversationConfig
+        #expect(config.temperature == 0.7)
+        #expect(config.topP == 0.9)
+    }
 }

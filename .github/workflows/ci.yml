@@ -24,8 +24,8 @@ jobs:
       - name: Lint
         run: swiftlint lint --strict --reporter github-actions-logging
 
-  build-and-test:
-    name: Build & Test
+  build-and-test-ios:
+    name: Build & Test (iOS)
     runs-on: macos-15
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         run: xcodebuild -version
 
       - name: Build llama.cpp XCFramework
-        run: bash scripts/build-xcframework.sh
+        run: bash scripts/build-xcframework.sh --platforms ios
 
       - name: Generate Xcode Project
         run: xcodegen generate
@@ -99,4 +99,50 @@ jobs:
             -destination '${{ steps.simulator.outputs.destination }}' \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS='x86_64' \
+            2>&1 | tail -100
+
+  build-and-test-macos:
+    name: Build & Test (macOS)
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Select Xcode
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using Xcode at: $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+
+      - name: Show Xcode Version
+        run: xcodebuild -version
+
+      - name: Build llama.cpp XCFramework
+        run: bash scripts/build-xcframework.sh --platforms ios,macos
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project HearthAI.xcodeproj \
+            -scheme HearthAI \
+            -destination 'platform=macOS' \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Test
+        timeout-minutes: 10
+        run: |
+          xcodebuild test \
+            -project HearthAI.xcodeproj \
+            -scheme HearthAI \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
             2>&1 | tail -100

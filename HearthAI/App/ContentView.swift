@@ -1,6 +1,28 @@
 import SwiftUI
 
+enum NavigationItem: Hashable {
+    case chat, models, library, settings
+}
+
 struct ContentView: View {
+    #if os(macOS)
+    var body: some View {
+        SidebarContentView()
+    }
+    #else
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    var body: some View {
+        if sizeClass == .regular {
+            SidebarContentView()
+        } else {
+            TabContentView()
+        }
+    }
+    #endif
+}
+
+struct TabContentView: View {
     var body: some View {
         TabView {
             ChatView()
@@ -14,6 +36,43 @@ struct ContentView: View {
 
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gear") }
+        }
+    }
+}
+
+struct SidebarContentView: View {
+    @State private var selection: NavigationItem? = .chat
+
+    var body: some View {
+        NavigationSplitView {
+            List(selection: $selection) {
+                Label("Chat", systemImage: "bubble.left.and.bubble.right")
+                    .tag(NavigationItem.chat)
+                Label("Models", systemImage: "square.grid.2x2")
+                    .tag(NavigationItem.models)
+                Label("Library", systemImage: "internaldrive")
+                    .tag(NavigationItem.library)
+                Label("Settings", systemImage: "gear")
+                    .tag(NavigationItem.settings)
+            }
+            .navigationTitle("Hearth AI")
+        } detail: {
+            switch selection {
+            case .chat:
+                ChatView()
+            case .models:
+                ModelStoreView()
+            case .library:
+                LibraryView()
+            case .settings:
+                SettingsView()
+            case nil:
+                ContentUnavailableView(
+                    "Select an Item",
+                    systemImage: "sidebar.left",
+                    description: Text("Choose a section from the sidebar.")
+                )
+            }
         }
     }
 }

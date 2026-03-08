@@ -24,7 +24,20 @@ struct HearthAIApp: App {
                     setupDownloadCompletion()
                 }
         }
+        #if os(macOS)
+        .defaultSize(width: 1000, height: 700)
+        #endif
         .modelContainer(modelContainer)
+
+        #if os(macOS)
+        Settings {
+            SettingsView()
+                .environment(appState)
+                .environment(appState.inferenceService)
+                .environment(appState.downloadService)
+                .modelContainer(modelContainer)
+        }
+        #endif
     }
 
     private func setupDownloadCompletion() {

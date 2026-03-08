@@ -40,12 +40,14 @@ struct ChatSettingsSheet: View {
                 }
             }
             .navigationTitle("Chat Settings")
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         onSave(systemPrompt, temperature, topP)
                         dismiss()
