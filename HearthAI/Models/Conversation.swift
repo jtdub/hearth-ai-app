@@ -13,6 +13,7 @@ final class Conversation {
     var contextLength: Int32
     var modelId: String?
     var documentId: UUID?
+    var useMemory: Bool
 
     @Relationship(deleteRule: .cascade, inverse: \Message.conversation)
     var messages: [Message] = []
@@ -24,7 +25,8 @@ final class Conversation {
         topP: Float = 0.9,
         contextLength: Int32 = 2048,
         modelId: String? = nil,
-        documentId: UUID? = nil
+        documentId: UUID? = nil,
+        useMemory: Bool = true
     ) {
         self.id = UUID()
         self.title = title
@@ -36,5 +38,6 @@ final class Conversation {
         self.contextLength = contextLength
         self.modelId = modelId
         self.documentId = documentId
+        self.useMemory = useMemory
     }
 }

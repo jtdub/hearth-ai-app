@@ -125,11 +125,13 @@ struct ChatView: View {
                 ?? Constants.defaultTemperature,
             topP: viewModel.activeConversation?.topP
                 ?? Constants.defaultTopP,
-            onSave: { prompt, temp, top in
+            useMemory: viewModel.activeConversation?.useMemory ?? true,
+            onSave: { prompt, temp, top, memory in
                 viewModel.updateConversationSettings(
                     systemPrompt: prompt,
                     temperature: temp,
-                    topP: top
+                    topP: top,
+                    useMemory: memory
                 )
             }
         )

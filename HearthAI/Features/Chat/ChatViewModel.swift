@@ -173,12 +173,14 @@ final class ChatViewModel {
     func updateConversationSettings(
         systemPrompt: String,
         temperature: Float,
-        topP: Float
+        topP: Float,
+        useMemory: Bool = true
     ) {
         ensureActiveConversation()
         activeConversation?.systemPrompt = systemPrompt
         activeConversation?.temperature = temperature
         activeConversation?.topP = topP
+        activeConversation?.useMemory = useMemory
         activeConversation?.updatedAt = .now
         try? modelContext?.save()
     }
@@ -225,10 +227,11 @@ final class ChatViewModel {
     private func buildPrompt() -> String {
         let basePrompt = activeConversation?.systemPrompt
             ?? "You are a helpful assistant."
+        let memoryContext = buildMemoryContext()
         let documentContext = buildDocumentContext()
-        let systemPrompt = documentContext.isEmpty
-            ? basePrompt
-            : basePrompt + "\n\n" + documentContext
+        let systemPrompt = [basePrompt, memoryContext, documentContext]
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n\n")
 
         var prompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
 
@@ -240,6 +243,50 @@ final class ChatViewModel {
 
         prompt += "<|im_start|>assistant\n"
         return prompt
+    }
+
+    private func buildMemoryContext() -> String {
+        guard activeConversation?.useMemory == true,
+              let context = modelContext else {
+            return ""
+        }
+
+        let allMemories: [Memory]
+        do {
+            allMemories = try context.fetch(FetchDescriptor<Memory>())
+        } catch {
+            return ""
+        }
+
+        let lastUserMessage = messages.last {
+            $0.role == .user
+        }?.content ?? ""
+
+        let contextLength = Int(
+            activeConversation?.contextLength
+                ?? Constants.defaultContextSize
+        )
+        let tokenBudget = Int(
+            Float(contextLength)
+                * Constants.memoryTokenBudgetFraction
+        )
+
+        let selected = MemorySelectorService.selectMemories(
+            query: lastUserMessage,
+            memories: allMemories,
+            maxTokenBudget: tokenBudget
+        )
+
+        guard !selected.isEmpty else { return "" }
+
+        let items = selected.map { "- \($0.content)" }
+            .joined(separator: "\n")
+
+        return """
+        Here are relevant things you know about the user:
+
+        \(items)
+        """
     }
 
     private func buildDocumentContext() -> String {
