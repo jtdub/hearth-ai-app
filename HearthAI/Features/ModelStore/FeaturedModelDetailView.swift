@@ -4,7 +4,9 @@ import SwiftData
 struct FeaturedModelDetailView: View {
     let model: FeaturedModel
     @Environment(DownloadService.self) private var downloadService
+    @Environment(NetworkMonitor.self) private var networkMonitor
     @Query private var localModels: [LocalModel]
+    @State private var showCellularAlert = false
 
     private var isDownloaded: Bool {
         localModels.contains { $0.id == model.id }
@@ -40,11 +42,17 @@ struct FeaturedModelDetailView: View {
                 } else {
                     let fit = DeviceCapability.canRunModel(fileSizeBytes: model.sizeBytes)
                     Button {
-                        downloadService.startDownload(
-                            repoId: model.repoId,
-                            fileName: model.fileName,
+                        if networkMonitor.shouldWarnForCellular(
                             fileSize: model.sizeBytes
-                        )
+                        ) {
+                            showCellularAlert = true
+                        } else {
+                            downloadService.startDownload(
+                                repoId: model.repoId,
+                                fileName: model.fileName,
+                                fileSize: model.sizeBytes
+                            )
+                        }
                     } label: {
                         Label(
                             "Download (\(model.formattedSize))",
@@ -59,6 +67,22 @@ struct FeaturedModelDetailView: View {
         #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .alert("Large Download on Cellular", isPresented: $showCellularAlert) {
+            Button("Download Anyway") {
+                downloadService.startDownload(
+                    repoId: model.repoId,
+                    fileName: model.fileName,
+                    fileSize: model.sizeBytes
+                )
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(
+                "This file is \(model.formattedSize). "
+                + "Downloading over cellular may use significant data. "
+                + "Connect to Wi-Fi for the best experience."
+            )
+        }
     }
 
     @ViewBuilder

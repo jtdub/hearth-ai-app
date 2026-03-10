@@ -62,7 +62,10 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Licenses") {
+                Section("Legal") {
+                    NavigationLink("Privacy Policy") {
+                        PrivacyPolicyView()
+                    }
                     NavigationLink("Open Source Licenses") {
                         LicensesView()
                     }
