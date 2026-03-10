@@ -72,6 +72,8 @@ struct FileRow: View {
     let isDownloaded: Bool
     let activeDownload: DownloadInfo?
     @Environment(DownloadService.self) private var downloadService
+    @Environment(NetworkMonitor.self) private var networkMonitor
+    @State private var showCellularAlert = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -99,11 +101,16 @@ struct FileRow: View {
                         .foregroundStyle(fit.canDownload ? .orange : .red)
                 }
                 Button {
-                    downloadService.startDownload(
-                        repoId: repoId,
-                        fileName: file.fileName,
-                        fileSize: file.size ?? 0
-                    )
+                    let fileSize = file.size ?? 0
+                    if networkMonitor.shouldWarnForCellular(fileSize: fileSize) {
+                        showCellularAlert = true
+                    } else {
+                        downloadService.startDownload(
+                            repoId: repoId,
+                            fileName: file.fileName,
+                            fileSize: fileSize
+                        )
+                    }
                 } label: {
                     Label("Download", systemImage: "arrow.down.circle")
                         .font(.caption)
@@ -112,5 +119,21 @@ struct FileRow: View {
             }
         }
         .padding(.vertical, 4)
+        .alert("Large Download on Cellular", isPresented: $showCellularAlert) {
+            Button("Download Anyway") {
+                downloadService.startDownload(
+                    repoId: repoId,
+                    fileName: file.fileName,
+                    fileSize: file.size ?? 0
+                )
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(
+                "This file is \(file.formattedSize). "
+                + "Downloading over cellular may use significant data. "
+                + "Connect to Wi-Fi for the best experience."
+            )
+        }
     }
 }

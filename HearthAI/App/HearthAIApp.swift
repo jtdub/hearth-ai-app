@@ -36,6 +36,7 @@ struct HearthAIApp: App {
                 .environment(appState)
                 .environment(appState.inferenceService)
                 .environment(appState.downloadService)
+                .environment(appState.networkMonitor)
                 .environment(sharedRequestHandler)
                 .modelContainer(modelContainer)
                 .onAppear {
@@ -64,6 +65,7 @@ struct HearthAIApp: App {
                 .environment(appState)
                 .environment(appState.inferenceService)
                 .environment(appState.downloadService)
+                .environment(appState.networkMonitor)
                 .modelContainer(modelContainer)
         }
         #endif
