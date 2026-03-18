@@ -167,6 +167,7 @@ struct ChatView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.streamingText) {
                 withAnimation(.easeOut(duration: 0.1)) {
                     proxy.scrollTo("streaming", anchor: .bottom)
