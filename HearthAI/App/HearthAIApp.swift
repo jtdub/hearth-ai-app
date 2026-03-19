@@ -99,8 +99,17 @@ struct HearthAIApp: App {
             FetchDescriptor<LocalModel>()
         ), !models.isEmpty else { return }
 
+        let defaultId = UserDefaults.standard.string(
+            forKey: "defaultModelId"
+        ) ?? ""
+
         let target: LocalModel?
-        if models.count == 1 {
+        if !defaultId.isEmpty,
+           let preferred = models.first(where: {
+               $0.id == defaultId
+           }) {
+            target = preferred
+        } else if models.count == 1 {
             target = models.first
         } else {
             target = models
@@ -298,7 +307,12 @@ struct HearthAIApp: App {
         }
     }
 
-    private func guessModelFamily(_ nameOrRepoId: String) -> String {
+}
+
+// MARK: - Model Metadata Helpers
+
+extension HearthAIApp {
+    func guessModelFamily(_ nameOrRepoId: String) -> String {
         let name = nameOrRepoId.lowercased()
         let families = [
             ("tinyllama", "TinyLlama"),
@@ -317,14 +331,15 @@ struct HearthAIApp: App {
             ("orca", "Orca")
         ]
 
-        for (key, value) in families where name.contains(key) {
+        for (key, value) in families
+        where name.contains(key) {
             return value
         }
 
         return "Unknown"
     }
 
-    private func guessQuantization(_ fileName: String) -> String {
+    func guessQuantization(_ fileName: String) -> String {
         let name = fileName.lowercased()
         let quants = [
             "q2_k", "q3_k_s", "q3_k_m", "q3_k_l",
@@ -332,7 +347,7 @@ struct HearthAIApp: App {
             "q5_0", "q5_1", "q5_k_s", "q5_k_m",
             "q6_k", "q8_0", "f16", "f32",
         ]
-        return quants.first { name.contains($0) }?.uppercased()
-            ?? "Unknown"
+        return quants.first { name.contains($0) }?
+            .uppercased() ?? "Unknown"
     }
 }

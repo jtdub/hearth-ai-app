@@ -4,7 +4,9 @@ import SwiftData
 struct SettingsView: View {
     @AppStorage("appTheme") private var appTheme = "system"
     @AppStorage("defaultModelId") private var defaultModelId = ""
-    @Query(sort: \LocalModel.downloadedAt, order: .reverse) private var models: [LocalModel]
+    @Environment(InferenceService.self) private var inferenceService
+    @Query(sort: \LocalModel.downloadedAt, order: .reverse)
+    private var models: [LocalModel]
 
     var body: some View {
         NavigationStack {
@@ -17,10 +19,17 @@ struct SettingsView: View {
                         Picker("Model", selection: $defaultModelId) {
                             Text("None").tag("")
                             ForEach(models) { model in
-                                Text(model.displayName).tag(model.id)
+                                Text(model.displayName)
+                                    .tag(model.id)
                             }
                         }
+                        .onChange(of: defaultModelId) {
+                            loadSelectedModel()
+                        }
                     }
+                }
+                .onAppear {
+                    syncDefaultModel()
                 }
 
                 Section("Appearance") {
@@ -74,6 +83,24 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private func syncDefaultModel() {
+        if defaultModelId.isEmpty,
+           let loadedId = inferenceService.loadedModelId {
+            defaultModelId = loadedId
+        }
+    }
+
+    private func loadSelectedModel() {
+        guard !defaultModelId.isEmpty,
+              inferenceService.loadedModelId != defaultModelId,
+              let model = models.first(where: {
+                  $0.id == defaultModelId
+              }) else { return }
+        Task {
+            try? await inferenceService.loadModel(model)
         }
     }
 }
