@@ -73,8 +73,9 @@ import Testing
         )
     ]
     for error in errors {
-        #expect(error.errorDescription != nil)
-        #expect(!error.errorDescription!.isEmpty)
+        let desc = error.errorDescription
+        #expect(desc != nil)
+        #expect(desc?.isEmpty == false)
     }
 }
 
