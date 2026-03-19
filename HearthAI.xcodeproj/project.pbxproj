@@ -12,7 +12,6 @@
 		04A7C29DA16524A6206C4CE6 /* ChatViewModelPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0A2225A6C6EDBB50BA8EC2 /* ChatViewModelPersistenceTests.swift */; };
 		071C4FF7811BDB62483DDD23 /* MemoryEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FE87B50355997F4F89507D /* MemoryEditSheet.swift */; };
 		08254E655C4E1BF9388FCC6A /* ModelStoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FA0F0505A852036347ADD6 /* ModelStoreViewModel.swift */; };
-		0B84B8B521C641C11494F926 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */; };
 		0BE4B41958A063A6C03F361B /* LocalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE68C23BD50C2CE6816C8530 /* LocalModel.swift */; };
 		0CEE39264E477430721B03B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3FA55484E7AE01A98C134D76 /* PrivacyInfo.xcprivacy */; };
 		113B66D2FA42EE2D775C50EF /* ChatSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AC4C60DF7E5535303E6452 /* ChatSettingsSheet.swift */; };
@@ -66,6 +65,7 @@
 		BC87F36961BE0BED3EAA6D7C /* SharedInferenceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B660F2E8E97C928DD84ED71 /* SharedInferenceRequest.swift */; };
 		C1864805E1FA7225AEF232C6 /* ChunkSelectorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED6A6FA7704A2242A250446 /* ChunkSelectorServiceTests.swift */; };
 		C23EDD8253AC5BFB0D8D060A /* ConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79397D1BF9F8D57724511993 /* ConversationListView.swift */; };
+		C3629F8EA3B110DC1713E1C2 /* NewFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */; };
 		C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397BD3F6A93E6069059BBBBF /* AppState.swift */; };
 		C8F1F74159FBEA232A3ADA84 /* SharedModelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D85805E3D380661427244EB /* SharedModelInfo.swift */; };
 		CBB8F9486DF5B9A8F6F350A7 /* DeviceCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79297A2500C2BFE5F893531F /* DeviceCapability.swift */; };
@@ -165,6 +165,7 @@
 		79397D1BF9F8D57724511993 /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
 		7FA5D99754391A1FBEBEECBE /* FeaturedModels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FeaturedModels.json; sourceTree = "<group>"; };
 		7FF55648803BB0ABE6BFB53B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeatureTests.swift; sourceTree = "<group>"; };
 		890BDB102F2FE40261F5A508 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		8D68E1B22F6633BA12A90545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCascadeTests.swift; sourceTree = "<group>"; };
@@ -193,7 +194,6 @@
 		CE68C23BD50C2CE6816C8530 /* LocalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalModel.swift; sourceTree = "<group>"; };
 		CFCC1717CB71ABB8B31D27DE /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		D7F08D71E4F9007C80ACDFD4 /* DocumentChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentChunk.swift; sourceTree = "<group>"; };
-		D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		D99C045015037CE756F3BEB1 /* MemorySelectorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySelectorServiceTests.swift; sourceTree = "<group>"; };
 		D9B42E2F08E2C9CC73214C8F /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		E0E39895107391568ACB967A /* DeviceCapabilityEdgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCapabilityEdgeTests.swift; sourceTree = "<group>"; };
@@ -264,6 +264,7 @@
 				C31143EB8502183C8C805EDD /* HuggingFaceTests.swift */,
 				32EC660DF7C4A749B0451F65 /* MemoryModelTests.swift */,
 				D99C045015037CE756F3BEB1 /* MemorySelectorServiceTests.swift */,
+				83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */,
 				9FCE4215B2189C14F0DC7EB8 /* SharedTypesTests.swift */,
 				8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */,
 				E80C3E2B605DDA7CD3DF5A1E /* TestModelContainer.swift */,
@@ -407,7 +408,6 @@
 		74345F7F3A5700DF2291083B /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				D8A8B1BEC306EC71156208A7 /* PrivacyPolicyView.swift */,
 				8D68E1B22F6633BA12A90545 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -714,7 +714,6 @@
 				08254E655C4E1BF9388FCC6A /* ModelStoreViewModel.swift in Sources */,
 				1625230B1870FEA70701B016 /* NetworkMonitor.swift in Sources */,
 				34D96B95583163C41CC83B2D /* PreviewData.swift in Sources */,
-				0B84B8B521C641C11494F926 /* PrivacyPolicyView.swift in Sources */,
 				EF385FE0755585B7C27D956B /* RewriteTextIntent.swift in Sources */,
 				01C5AA9BD6F4C0823A324194 /* SettingsView.swift in Sources */,
 				BC87F36961BE0BED3EAA6D7C /* SharedInferenceRequest.swift in Sources */,
@@ -755,6 +754,7 @@
 				8A5B36588755EFFB4BEA89EF /* HuggingFaceTests.swift in Sources */,
 				7280A7DA56145162F0020879 /* MemoryModelTests.swift in Sources */,
 				43E8C3AD80BD3EB342DA7AC1 /* MemorySelectorServiceTests.swift in Sources */,
+				C3629F8EA3B110DC1713E1C2 /* NewFeatureTests.swift in Sources */,
 				79EE522BA45829CEC1AC73EB /* SharedTypesTests.swift in Sources */,
 				910A8C1FFD6C00FCB79D6E0D /* SwiftDataCascadeTests.swift in Sources */,
 				CE92A1FB39AD10CF859706C5 /* TestModelContainer.swift in Sources */,
@@ -781,7 +781,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "HearthAI ShareExtension/HearthAIShareExtension.entitlements";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "HearthAI ShareExtension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -789,7 +789,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI.ShareExtension;
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -957,7 +957,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "HearthAI ShareExtension/HearthAIShareExtension.entitlements";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "HearthAI ShareExtension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -965,7 +965,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI.ShareExtension;
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -984,7 +984,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HearthAI/HearthAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HearthAI/Info.plist;
@@ -998,7 +998,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";
@@ -1017,7 +1017,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HearthAI/HearthAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HearthAI/Info.plist;
@@ -1031,7 +1031,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ai.hearth.HearthAI;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator macosx";

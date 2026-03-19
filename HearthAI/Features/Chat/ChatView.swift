@@ -43,6 +43,19 @@ struct ChatView: View {
                     viewModel.attachDocument(document)
                 })
             }
+            .alert(
+                "Inference Error",
+                isPresented: .init(
+                    get: { viewModel.inferenceError != nil },
+                    set: {
+                        if !$0 { viewModel.inferenceError = nil }
+                    }
+                )
+            ) {
+                Button("OK") { viewModel.inferenceError = nil }
+            } message: {
+                Text(viewModel.inferenceError ?? "")
+            }
         }
         .onAppear {
             viewModel.inferenceService = inferenceService
@@ -167,6 +180,7 @@ struct ChatView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.streamingText) {
                 withAnimation(.easeOut(duration: 0.1)) {
                     proxy.scrollTo("streaming", anchor: .bottom)
@@ -187,12 +201,21 @@ struct ChatView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            if !inferenceService.isModelLoaded {
-                Text("No model loaded. Tap the brain icon to select one.")
+            if inferenceService.isLoading {
+                    ProgressView()
+                        .padding(.top, 4)
+                    Text("Loading model...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if !inferenceService.isModelLoaded {
+                    Text(
+                        "No model loaded."
+                            + " Tap the brain icon to select one."
+                    )
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .padding(.top, 4)
-            }
+                }
             Spacer()
         }
         .frame(maxWidth: .infinity)
@@ -239,7 +262,11 @@ struct ChatView: View {
                 .lineLimit(1...5)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 20))
+                .background(
+                    .fill.tertiary,
+                    in: RoundedRectangle(cornerRadius: 20)
+                )
+                .onSubmit { submitMessage() }
 
             if viewModel.isGenerating {
                 Button {
@@ -251,28 +278,40 @@ struct ChatView: View {
                 }
             } else {
                 Button {
-                    let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !text.isEmpty else { return }
-                    inputText = ""
-                    Task { await viewModel.send(text) }
+                    submitMessage()
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
                         .foregroundStyle(
-                            inputText.trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            ).isEmpty ? .gray : .accentColor
+                            canSend
+                                ? Color.accentColor : .gray
                         )
                 }
-                .disabled(
-                    inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    || !inferenceService.isModelLoaded
-                )
+                .disabled(!canSend)
             }
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(.bar)
+    }
+
+    // MARK: - Actions
+
+    private var canSend: Bool {
+        let text = inputText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        return !text.isEmpty && inferenceService.isModelLoaded
+    }
+
+    private func submitMessage() {
+        let text = inputText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !text.isEmpty,
+              inferenceService.isModelLoaded else { return }
+        inputText = ""
+        Task { await viewModel.send(text) }
     }
 
     // MARK: - Thermal Warning

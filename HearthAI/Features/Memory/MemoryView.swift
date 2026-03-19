@@ -101,6 +101,22 @@ struct MemoryView: View {
                     .onTapGesture {
                         editingMemory = memory
                     }
+                    .contextMenu {
+                        Button {
+                            editingMemory = memory
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            modelContext.delete(memory)
+                            try? modelContext.save()
+                        } label: {
+                            Label(
+                                "Delete",
+                                systemImage: "trash"
+                            )
+                        }
+                    }
             }
             .onDelete(perform: deleteMemories)
         }

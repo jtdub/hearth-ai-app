@@ -35,7 +35,9 @@ struct DocumentPickerSheet: View {
                 }
             }
             .navigationTitle("Attach Document")
-            #if !os(macOS)
+            #if os(macOS)
+            .frame(minWidth: 400, minHeight: 300)
+            #else
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {

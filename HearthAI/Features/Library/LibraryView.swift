@@ -61,8 +61,16 @@ struct LibraryView: View {
                 ForEach(models) { model in
                     ModelRow(
                         model: model,
-                        isLoaded: inferenceService.loadedModelId == model.id
+                        isLoaded: inferenceService
+                            .loadedModelId == model.id
                     )
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            modelToDelete = model
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 }
                 .onDelete { indexSet in
                     if let index = indexSet.first {
