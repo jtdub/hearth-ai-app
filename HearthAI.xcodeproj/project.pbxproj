@@ -65,6 +65,7 @@
 		BC87F36961BE0BED3EAA6D7C /* SharedInferenceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B660F2E8E97C928DD84ED71 /* SharedInferenceRequest.swift */; };
 		C1864805E1FA7225AEF232C6 /* ChunkSelectorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED6A6FA7704A2242A250446 /* ChunkSelectorServiceTests.swift */; };
 		C23EDD8253AC5BFB0D8D060A /* ConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79397D1BF9F8D57724511993 /* ConversationListView.swift */; };
+		C3629F8EA3B110DC1713E1C2 /* NewFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */; };
 		C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397BD3F6A93E6069059BBBBF /* AppState.swift */; };
 		C8F1F74159FBEA232A3ADA84 /* SharedModelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D85805E3D380661427244EB /* SharedModelInfo.swift */; };
 		CBB8F9486DF5B9A8F6F350A7 /* DeviceCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79297A2500C2BFE5F893531F /* DeviceCapability.swift */; };
@@ -164,6 +165,7 @@
 		79397D1BF9F8D57724511993 /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
 		7FA5D99754391A1FBEBEECBE /* FeaturedModels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FeaturedModels.json; sourceTree = "<group>"; };
 		7FF55648803BB0ABE6BFB53B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeatureTests.swift; sourceTree = "<group>"; };
 		890BDB102F2FE40261F5A508 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		8D68E1B22F6633BA12A90545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataCascadeTests.swift; sourceTree = "<group>"; };
@@ -262,6 +264,7 @@
 				C31143EB8502183C8C805EDD /* HuggingFaceTests.swift */,
 				32EC660DF7C4A749B0451F65 /* MemoryModelTests.swift */,
 				D99C045015037CE756F3BEB1 /* MemorySelectorServiceTests.swift */,
+				83891203C3D79BC5D5CEB6D4 /* NewFeatureTests.swift */,
 				9FCE4215B2189C14F0DC7EB8 /* SharedTypesTests.swift */,
 				8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */,
 				E80C3E2B605DDA7CD3DF5A1E /* TestModelContainer.swift */,
@@ -751,6 +754,7 @@
 				8A5B36588755EFFB4BEA89EF /* HuggingFaceTests.swift in Sources */,
 				7280A7DA56145162F0020879 /* MemoryModelTests.swift in Sources */,
 				43E8C3AD80BD3EB342DA7AC1 /* MemorySelectorServiceTests.swift in Sources */,
+				C3629F8EA3B110DC1713E1C2 /* NewFeatureTests.swift in Sources */,
 				79EE522BA45829CEC1AC73EB /* SharedTypesTests.swift in Sources */,
 				910A8C1FFD6C00FCB79D6E0D /* SwiftDataCascadeTests.swift in Sources */,
 				CE92A1FB39AD10CF859706C5 /* TestModelContainer.swift in Sources */,
