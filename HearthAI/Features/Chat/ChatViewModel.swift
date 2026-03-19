@@ -7,6 +7,7 @@ final class ChatViewModel {
     var messages: [ChatMessage] = []
     var streamingText = ""
     var isGenerating = false
+    var inferenceError: String?
     var inferenceService: InferenceService?
     var thermalMonitor: ThermalMonitor?
 
@@ -30,52 +31,119 @@ final class ChatViewModel {
     }
 
     func send(_ text: String) async {
-        guard let inferenceService, inferenceService.isModelLoaded else { return }
+        guard let inferenceService,
+              inferenceService.isModelLoaded else { return }
 
         let userMessage = ChatMessage(role: .user, content: text)
         messages.append(userMessage)
         persistMessage(role: .user, content: text)
 
-        let prompt = buildPrompt()
-
         isGenerating = true
         streamingText = ""
 
         let currentConfig = conversationConfig
-        guard let stream = inferenceService.generate(prompt: prompt, config: currentConfig) else {
+        guard let stream = inferenceService.generate(
+            prompt: buildPrompt(), config: currentConfig
+        ) else {
             isGenerating = false
             return
         }
 
-        let stopTokens = ["<|im_end|>", "<|im_start|>", "<|endoftext|>"]
+        let timedOut = await consumeStream(
+            stream, inferenceService: inferenceService
+        )
+        finalizeResponse(timedOut: timedOut)
+    }
+
+    private func consumeStream(
+        _ stream: AsyncStream<String>,
+        inferenceService: InferenceService
+    ) async -> Bool {
+        let stopTokens = [
+            "<|im_end|>", "<|im_start|>", "<|endoftext|>"
+        ]
+        let timeoutState = TimeoutState()
+        let timeoutTask = makeTimeoutTask(
+            state: timeoutState, service: inferenceService
+        )
 
         for await token in stream {
             if thermalMonitor?.isCritical == true {
                 await inferenceService.cancelGeneration()
                 break
             }
+            timeoutState.recordToken()
             streamingText += token
 
-            // Stop if a chat template stop token appears in the output
-            if stopTokens.contains(where: { streamingText.hasSuffix($0) }) {
-                for stop in stopTokens where streamingText.hasSuffix(stop) {
-                    streamingText = String(streamingText.dropLast(stop.count))
-                }
+            if trimStopTokens(stopTokens) {
                 await inferenceService.cancelGeneration()
                 break
             }
         }
 
-        // Clean any remaining stop tokens that may have been split across yields
-        for stop in stopTokens {
-            streamingText = streamingText.replacingOccurrences(of: stop, with: "")
-        }
-        streamingText = streamingText.trimmingCharacters(in: .whitespacesAndNewlines)
+        timeoutTask.cancel()
+        cleanStopTokens(stopTokens)
+        return timeoutState.didTimeout
+    }
 
-        if !streamingText.isEmpty {
-            let assistantMessage = ChatMessage(role: .assistant, content: streamingText)
-            messages.append(assistantMessage)
-            persistMessage(role: .assistant, content: streamingText)
+    private func makeTimeoutTask(
+        state: TimeoutState, service: InferenceService
+    ) -> Task<Void, Never> {
+        Task.detached {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { return }
+                let info = state.currentState()
+                let elapsed = Date().timeIntervalSince(
+                    info.lastTokenTime
+                )
+                let limit = info.receivedFirstToken
+                    ? Constants.interTokenTimeoutSeconds
+                    : Constants.firstTokenTimeoutSeconds
+                if elapsed > limit {
+                    state.markTimeout()
+                    await service.cancelGeneration()
+                    return
+                }
+            }
+        }
+    }
+
+    private func trimStopTokens(_ tokens: [String]) -> Bool {
+        guard tokens.contains(where: {
+            streamingText.hasSuffix($0)
+        }) else { return false }
+        for stop in tokens where streamingText.hasSuffix(stop) {
+            streamingText = String(
+                streamingText.dropLast(stop.count)
+            )
+        }
+        return true
+    }
+
+    private func cleanStopTokens(_ tokens: [String]) {
+        for stop in tokens {
+            streamingText = streamingText
+                .replacingOccurrences(of: stop, with: "")
+        }
+        streamingText = streamingText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+    }
+
+    private func finalizeResponse(timedOut: Bool) {
+        if timedOut && streamingText.isEmpty {
+            inferenceError = "Inference timed out. The model"
+                + " may be too large or unresponsive."
+                + " Try a smaller model."
+        } else if !streamingText.isEmpty {
+            let msg = ChatMessage(
+                role: .assistant, content: streamingText
+            )
+            messages.append(msg)
+            persistMessage(
+                role: .assistant, content: streamingText
+            )
             autoTitleConversation()
         }
         streamingText = ""
@@ -222,23 +290,28 @@ final class ChatViewModel {
         try? modelContext?.save()
     }
 
-    // MARK: - Prompt Building
+}
 
-    private func buildPrompt() -> String {
+// MARK: - Prompt Building
+
+extension ChatViewModel {
+    func buildPrompt() -> String {
         let basePrompt = activeConversation?.systemPrompt
             ?? "You are a helpful assistant."
-        let memoryContext = buildMemoryContext()
-        let documentContext = buildDocumentContext()
-        let systemPrompt = [basePrompt, memoryContext, documentContext]
+        let memoryCtx = buildMemoryContext()
+        let docCtx = buildDocumentContext()
+        let systemPrompt = [basePrompt, memoryCtx, docCtx]
             .filter { !$0.isEmpty }
             .joined(separator: "\n\n")
 
-        var prompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
+        var prompt = "<|im_start|>system\n"
+            + "\(systemPrompt)<|im_end|>\n"
 
         for message in messages {
-            let role = message.role == .user ? "user" : "assistant"
-            prompt += "<|im_start|>\(role)\n\(message.content)"
-            prompt += "<|im_end|>\n"
+            let role = message.role == .user
+                ? "user" : "assistant"
+            prompt += "<|im_start|>\(role)\n"
+                + "\(message.content)<|im_end|>\n"
         }
 
         prompt += "<|im_start|>assistant\n"
@@ -253,7 +326,9 @@ final class ChatViewModel {
 
         let allMemories: [Memory]
         do {
-            allMemories = try context.fetch(FetchDescriptor<Memory>())
+            allMemories = try context.fetch(
+                FetchDescriptor<Memory>()
+            )
         } catch {
             return ""
         }
@@ -338,4 +413,32 @@ struct ChatMessage: Identifiable {
     let role: MessageRole
     let content: String
     let createdAt = Date()
+}
+
+final class TimeoutState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _lastTokenTime = Date()
+    private var _receivedFirstToken = false
+    private(set) var didTimeout = false
+
+    func recordToken() {
+        lock.lock()
+        _lastTokenTime = Date()
+        _receivedFirstToken = true
+        lock.unlock()
+    }
+
+    func currentState() -> (
+        lastTokenTime: Date, receivedFirstToken: Bool
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        return (_lastTokenTime, _receivedFirstToken)
+    }
+
+    func markTimeout() {
+        lock.lock()
+        didTimeout = true
+        lock.unlock()
+    }
 }

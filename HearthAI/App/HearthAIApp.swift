@@ -43,6 +43,7 @@ struct HearthAIApp: App {
                     setupDownloadCompletion()
                     syncModelList()
                     registerExistingModels()
+                    autoLoadModel()
                 }
                 .onOpenURL { url in
                     sharedRequestHandler.handleURL(url)
@@ -87,6 +88,40 @@ struct HearthAIApp: App {
     @MainActor
     private func syncModelList() {
         modelSync.syncModels(context: modelContainer.mainContext)
+    }
+
+    @MainActor
+    private func autoLoadModel() {
+        guard appState.inferenceService.loadedModelId == nil
+        else { return }
+        let context = modelContainer.mainContext
+        guard let models = try? context.fetch(
+            FetchDescriptor<LocalModel>()
+        ), !models.isEmpty else { return }
+
+        let target: LocalModel?
+        if models.count == 1 {
+            target = models.first
+        } else {
+            target = models
+                .filter { $0.lastUsedAt != nil }
+                .sorted {
+                    ($0.lastUsedAt ?? .distantPast)
+                        > ($1.lastUsedAt ?? .distantPast)
+                }
+                .first
+        }
+
+        guard let model = target else { return }
+        let fit = DeviceCapability.canRunModel(
+            fileSizeBytes: model.fileSizeBytes
+        )
+        guard fit != .tooLarge else { return }
+        Task {
+            try? await appState.inferenceService.loadModel(
+                model
+            )
+        }
     }
 
     @MainActor
@@ -249,6 +284,18 @@ struct HearthAIApp: App {
         context.insert(model)
         try? context.save()
         modelSync.syncModels(context: context)
+
+        if appState.inferenceService.loadedModelId == nil {
+            let fit = DeviceCapability.canRunModel(
+                fileSizeBytes: model.fileSizeBytes
+            )
+            if fit != .tooLarge {
+                Task {
+                    try? await appState.inferenceService
+                        .loadModel(model)
+                }
+            }
+        }
     }
 
     private func guessModelFamily(_ nameOrRepoId: String) -> String {

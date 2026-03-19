@@ -43,6 +43,19 @@ struct ChatView: View {
                     viewModel.attachDocument(document)
                 })
             }
+            .alert(
+                "Inference Error",
+                isPresented: .init(
+                    get: { viewModel.inferenceError != nil },
+                    set: {
+                        if !$0 { viewModel.inferenceError = nil }
+                    }
+                )
+            ) {
+                Button("OK") { viewModel.inferenceError = nil }
+            } message: {
+                Text(viewModel.inferenceError ?? "")
+            }
         }
         .onAppear {
             viewModel.inferenceService = inferenceService
@@ -188,12 +201,21 @@ struct ChatView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            if !inferenceService.isModelLoaded {
-                Text("No model loaded. Tap the brain icon to select one.")
+            if inferenceService.isLoading {
+                    ProgressView()
+                        .padding(.top, 4)
+                    Text("Loading model...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if !inferenceService.isModelLoaded {
+                    Text(
+                        "No model loaded."
+                            + " Tap the brain icon to select one."
+                    )
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .padding(.top, 4)
-            }
+                }
             Spacer()
         }
         .frame(maxWidth: .infinity)

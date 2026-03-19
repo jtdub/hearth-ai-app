@@ -36,6 +36,19 @@ final class InferenceService {
     // MARK: - Model Lifecycle
 
     func loadModel(_ model: LocalModel) async throws {
+        let fit = DeviceCapability.canRunModel(
+            fileSizeBytes: model.fileSizeBytes
+        )
+        if fit == .tooLarge {
+            throw InferenceError.insufficientMemory(
+                modelSize: ByteCountFormatter.string(
+                    fromByteCount: model.fileSizeBytes,
+                    countStyle: .file
+                ),
+                available: DeviceCapability.availableMemoryFormatted
+            )
+        }
+
         await unloadModel()
         isLoading = true
         loadError = nil
@@ -187,6 +200,7 @@ enum InferenceError: Error, LocalizedError {
     case modelFileNotFound(String)
     case modelFileCorrupted(String)
     case modelFileSizeMismatch(expected: Int64, actual: Int64)
+    case insufficientMemory(modelSize: String, available: String)
 
     var errorDescription: String? {
         switch self {
@@ -195,9 +209,18 @@ enum InferenceError: Error, LocalizedError {
         case .modelFileCorrupted(let name):
             return "Model file appears corrupted: \(name)"
         case .modelFileSizeMismatch(let expected, let actual):
-            let exp = ByteCountFormatter.string(fromByteCount: expected, countStyle: .file)
-            let act = ByteCountFormatter.string(fromByteCount: actual, countStyle: .file)
-            return "Model file size mismatch: expected \(exp), got \(act). The file may be corrupted."
+            let exp = ByteCountFormatter.string(
+                fromByteCount: expected, countStyle: .file
+            )
+            let act = ByteCountFormatter.string(
+                fromByteCount: actual, countStyle: .file
+            )
+            return "Model file size mismatch: expected \(exp),"
+                + " got \(act). The file may be corrupted."
+        case .insufficientMemory(let modelSize, let available):
+            return "This model requires approximately"
+                + " \(modelSize) but only \(available)"
+                + " is available."
         }
     }
 }
