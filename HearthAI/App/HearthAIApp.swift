@@ -42,8 +42,10 @@ struct HearthAIApp: App {
                 .onAppear {
                     setupDownloadCompletion()
                     syncModelList()
-                    registerExistingModels()
-                    autoLoadModel()
+                    Task { @MainActor in
+                        registerExistingModels()
+                        autoLoadModel()
+                    }
                 }
                 .onOpenURL { url in
                     sharedRequestHandler.handleURL(url)
