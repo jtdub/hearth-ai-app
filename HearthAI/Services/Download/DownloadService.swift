@@ -16,13 +16,18 @@ final class DownloadService: NSObject {
     override init() {
         super.init()
         delegateQueue.maxConcurrentOperationCount = 1
+        #if os(macOS)
+        // macOS apps don't suspend, so a standard session works
+        // and avoids "Could not communicate with background
+        // transfer service" errors in sandboxed builds.
+        let config = URLSessionConfiguration.default
+        #else
         let config = URLSessionConfiguration.background(
             withIdentifier: "ai.hearth.download"
         )
-        config.isDiscretionary = false
-        #if os(iOS) || os(visionOS)
         config.sessionSendsLaunchEvents = true
         #endif
+        config.isDiscretionary = false
         backgroundSession = URLSession(
             configuration: config,
             delegate: self,
@@ -146,12 +151,7 @@ extension DownloadService: URLSessionDownloadDelegate {
             let fileName = parts.last ?? ""
             let repoId = parts.dropLast().joined(separator: "/")
             let repoComponent = repoId.replacingOccurrences(of: "/", with: "_")
-            guard let appSupportDir = FileManager.default.urls(
-                for: .applicationSupportDirectory, in: .userDomainMask
-            ).first else {
-                throw URLError(.cannotCreateFile)
-            }
-            let modelsDir = appSupportDir.appendingPathComponent("Models", isDirectory: true)
+            let modelsDir = FileManager.modelsDirectory
             let repoDir = modelsDir.appendingPathComponent(repoComponent, isDirectory: true)
             try FileManager.default.createDirectory(at: repoDir, withIntermediateDirectories: true)
             let destURL = repoDir.appendingPathComponent(fileName)

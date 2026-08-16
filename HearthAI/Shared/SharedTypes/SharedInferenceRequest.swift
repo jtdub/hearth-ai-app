@@ -1,6 +1,7 @@
 import Foundation
 
-/// A request queued by the Share Extension for the main app to process.
+/// A request that the Share Extension queues for the main app
+/// to process.
 struct SharedInferenceRequest: Codable, Identifiable {
     let id: UUID
     let inputText: String

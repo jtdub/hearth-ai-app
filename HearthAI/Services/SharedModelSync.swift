@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-/// Syncs available model info to the App Group shared container
-/// so extensions can enumerate downloaded models.
+/// Writes available model info to the App Group shared
+/// container. Extensions can then list the downloaded models.
 @MainActor
 final class SharedModelSync {
 

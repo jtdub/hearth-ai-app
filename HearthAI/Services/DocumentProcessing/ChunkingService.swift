@@ -2,9 +2,10 @@ import Foundation
 
 enum ChunkingService {
 
-    /// Splits text into chunks of approximately `maxTokens` size
-    /// with `overlapTokens` overlap between consecutive chunks.
-    /// Token count is estimated as character count / 4.
+    /// Splits text into chunks of about `maxTokens` size, with
+    /// an overlap of `overlapTokens` between adjacent chunks.
+    /// The service estimates the token count as the character
+    /// count divided by 4.
     static func chunk(
         text: String,
         maxTokens: Int = Constants.defaultChunkSize,

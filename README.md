@@ -1,44 +1,44 @@
 # Hearth AI
 
-A multi-platform app (iOS, macOS, visionOS) for running large language models entirely on-device using [llama.cpp](https://github.com/ggerganov/llama.cpp). Browse and download GGUF models from Hugging Face Hub, then chat with them locally — no server, no API keys, fully private.
+Hearth AI is a multi-platform app for iOS, macOS, and visionOS. It runs large language models fully on your device with [llama.cpp](https://github.com/ggerganov/llama.cpp). You can browse and download GGUF models from Hugging Face Hub. Then you can chat with the models locally. The app uses no server and no API keys. Your data stays private.
 
 ## Features
 
 - **On-device inference** — Run GGUF models locally with Metal GPU acceleration
-- **Model store** — Browse Hugging Face Hub, search for GGUF models, and see which ones fit your device's available memory
-- **Background downloads** — Download models with pause/resume support via background URLSession
-- **Conversation history** — Persistent chat history with SwiftData, multiple conversations, custom system prompts
-- **Document Q&A** — Import documents (text, PDF, photos via OCR), chunk them, and ask questions with TF-IDF retrieval
-- **Conversation memory** — Persistent personal knowledge base with TF-IDF relevance scoring, per-conversation toggle, and JSON export
-- **Share Extension** — Process shared text and URLs from other apps using your local models
-- **App Intents** — Siri and Shortcuts integration for asking questions, rewriting, translating, and summarizing text
-- **Device-aware** — Automatically filters models by available RAM, warns on tight fits, blocks models too large for your device
-- **Thermal management** — Monitors device temperature and pauses generation if the device overheats
-- **Memory safety** — Auto-unloads models on memory warnings and after 60 seconds in the background
-- **Multi-platform** — Runs on iOS, macOS, and visionOS with adaptive UI (tabs on compact, sidebar on regular)
+- **Model store** — Browse Hugging Face Hub, search for GGUF models, and see which models fit the available memory of your device
+- **Background downloads** — Download models with a background URLSession; you can pause and resume downloads
+- **Conversation history** — Keep chat history with SwiftData, with multiple conversations and custom system prompts
+- **Document Q&A** — Import documents (text, PDF, photos with OCR), split them into chunks, and ask questions with TF-IDF retrieval
+- **Conversation memory** — Keep a personal knowledge base with TF-IDF relevance scores, a toggle for each conversation, and JSON export
+- **Share Extension** — Process shared text and URLs from other apps with your local models
+- **App Intents** — Use Siri and Shortcuts to ask questions, rewrite, translate, and summarize text
+- **Device-aware** — The app filters models by available RAM, warns when the fit is tight, and blocks models that are too large for your device
+- **Thermal management** — The app monitors the device temperature and stops generation if the device becomes too hot
+- **Memory safety** — The app unloads models on memory warnings and after 60 seconds in the background
+- **Multi-platform** — The app runs on iOS, macOS, and visionOS with an adaptive UI (tabs on compact layouts, a sidebar on regular layouts)
 
 ## Requirements
 
 - iOS 17.0+ / macOS 14.0+ / visionOS 1.0+
 - Xcode 16.3+
-- macOS 15+ (for building)
+- macOS 15+ (for builds)
 
 ## Getting Started
 
-### 1. Clone and initialize submodules
+### 1. Clone the repository and initialize the submodules
 
 ```bash
 git clone --recursive https://github.com/jtdub/hearth-ai-app.git
 cd hearth-ai-app
 ```
 
-If you already cloned without `--recursive`:
+If you cloned the repository without `--recursive`, run this command:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-### 2. Install dependencies
+### 2. Install the dependencies
 
 ```bash
 brew install xcodegen swiftlint
@@ -46,7 +46,7 @@ brew install xcodegen swiftlint
 
 ### 3. Build the llama.cpp XCFramework
 
-This compiles llama.cpp into a universal XCFramework for iOS device and simulator:
+This step compiles llama.cpp into a universal XCFramework for the iOS device and the simulator:
 
 ```bash
 bash scripts/build-xcframework.sh
@@ -54,7 +54,7 @@ bash scripts/build-xcframework.sh
 
 ### 4. Generate the Xcode project
 
-The project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) — the `.xcodeproj` is generated from `project.yml`:
+The project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen). The `.xcodeproj` is generated from `project.yml`:
 
 ```bash
 xcodegen generate
@@ -62,7 +62,7 @@ xcodegen generate
 
 ### 5. Build and run
 
-Open `HearthAI.xcodeproj` in Xcode, select a simulator or device, and run. Or from the command line:
+Open `HearthAI.xcodeproj` in Xcode. Select a simulator or a device. Then run the app. You can also build from the command line:
 
 ```bash
 # iOS
@@ -77,27 +77,27 @@ xcodebuild build -project HearthAI.xcodeproj -scheme HearthAI \
 
 ## Usage
 
-1. **Download a model** — Go to the Models tab, pick a recommended model or search for one. The app shows which models are compatible with your device's memory.
-2. **Load a model** — Tap the brain icon in Chat or go to the Library tab to load a downloaded model.
-3. **Chat** — Switch to the Chat tab and start a conversation. Responses stream token-by-token.
+1. **Download a model** — Go to the Models tab. Select a recommended model or search for one. The app shows which models are compatible with the memory of your device.
+2. **Load a model** — Tap the brain icon in Chat, or go to the Library tab to load a downloaded model.
+3. **Chat** — Go to the Chat tab and start a conversation. The response streams token by token.
 4. **Import documents** — Go to the Documents tab to import text, PDFs, or photos (OCR). Attach a document to a conversation for Q&A.
-5. **Manage memories** — Go to the Memory tab to add personal facts, preferences, and instructions that personalize conversations.
-6. **Share Extension** — Share text or URLs from any app to process them with your local model.
-7. **Shortcuts** — Use Siri or the Shortcuts app to ask Hearth AI questions, rewrite, translate, or summarize text.
+5. **Manage memories** — Go to the Memory tab. Add personal facts, preferences, and instructions to make conversations more personal.
+6. **Share Extension** — Share text or URLs from a different app to process them with your local model.
+7. **Shortcuts** — Use Siri or the Shortcuts app to ask Hearth AI questions, or to rewrite, translate, or summarize text.
 
 ### Recommended Models
 
 | Model | Size | Best for |
 |-------|------|----------|
-| Qwen 2.5 0.5B | ~470 MB | Testing, low-memory devices |
+| Qwen 2.5 0.5B | ~470 MB | Tests, low-memory devices |
 | Llama 3.2 1B | ~776 MB | Fast inference on mobile |
 | Qwen 2.5 1.5B | ~1.1 GB | Balance of speed and quality |
 | Llama 3.2 3B | ~2 GB | Strong reasoning (6GB+ RAM) |
-| Phi 3.5 Mini | ~2.2 GB | Excellent for its size (6GB+ RAM) |
+| Phi 3.5 Mini | ~2.2 GB | High quality for its size (6GB+ RAM) |
 
 ## Architecture
 
-**SwiftUI + MVVM** with `@Observable` view models and **SwiftData** for persistence.
+The app uses **SwiftUI + MVVM** with `@Observable` view models and **SwiftData** for persistence.
 
 ```
 HearthAI/
@@ -129,19 +129,19 @@ scripts/          Build and test helper scripts
 
 ### Key Design Decisions
 
-- **Zero third-party Swift dependencies** — Only the vendored llama.cpp C++ library
-- **XcodeGen** — Project file is generated from `project.yml`; edit that instead of the `.xcodeproj`
-- **`@MainActor` services** — All `@Observable` services and view models are main-actor-isolated for thread safety
-- **Background downloads** — Uses `URLSessionDownloadDelegate` with `NSLock`-protected task mapping for cross-isolation-domain safety
-- **Metal GPU acceleration** — llama.cpp is linked with Metal, MetalPerformanceShaders, and Accelerate frameworks
-- **App Group shared container** — SwiftData store lives in the App Group container so the Share Extension can access model data
-- **TF-IDF retrieval** — Both document chunks and memories use TF-IDF scoring for relevance-based context injection within token budgets
+- **Zero third-party Swift dependencies** — The only external code is the vendored llama.cpp C++ library
+- **XcodeGen** — The project file is generated from `project.yml`; edit that file, not the `.xcodeproj`
+- **`@MainActor` services** — All `@Observable` services and view models run on the main actor for thread safety
+- **Background downloads** — The app uses `URLSessionDownloadDelegate` with an `NSLock`-protected task map for safety across isolation domains
+- **Metal GPU acceleration** — llama.cpp links the Metal, MetalPerformanceShaders, and Accelerate frameworks
+- **App Group shared container** — The SwiftData store is in the App Group container, so the Share Extension can read the model data
+- **TF-IDF retrieval** — Document chunks and memories use TF-IDF scores to select relevant context inside token budgets
 
 ## Development
 
 ### Running Tests
 
-Uses the Swift Testing framework (`@Test` macro):
+The project uses the Swift Testing framework (`@Test` macro):
 
 ```bash
 xcodebuild test -project HearthAI.xcodeproj -scheme HearthAI \
@@ -158,7 +158,7 @@ swiftlint lint --strict
 
 ### Project Changes
 
-Always edit `project.yml` for build settings or target changes, then regenerate:
+Always edit `project.yml` for build settings or target changes. Then generate the project again:
 
 ```bash
 xcodegen generate
@@ -166,13 +166,13 @@ xcodegen generate
 
 ## CI
 
-GitHub Actions runs on every push and PR to `main`:
+GitHub Actions runs on each push and each PR to `main`:
 
-- **SwiftLint** — Strict mode with `github-actions-logging` reporter
-- **Build & Test** — Builds the XCFramework, generates the project, compiles, and runs all tests on an iOS Simulator
+- **SwiftLint** — Strict mode with the `github-actions-logging` reporter
+- **Build & Test** — Builds the XCFramework, generates the project, compiles the code, and runs all tests on an iOS Simulator
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project uses the MIT License — see [LICENSE](LICENSE) for details.
 
 Note: The vendored [llama.cpp](https://github.com/ggerganov/llama.cpp) library has its own [MIT License](Packages/LlamaCpp/vendored/llama.cpp/LICENSE).

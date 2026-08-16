@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// View shown when the app receives a shared request from the
-/// Share Extension.
+/// This view appears when the app receives a shared request
+/// from the Share Extension.
 struct SharedRequestView: View {
     @Environment(SharedRequestHandler.self) private var handler
     @Environment(InferenceService.self) private var inferenceService

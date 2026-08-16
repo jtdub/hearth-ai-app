@@ -3,8 +3,9 @@ import llama
 
 /// Thread-safe wrapper around the llama.cpp C API.
 ///
-/// Uses Swift actor isolation to serialize access to the underlying C context.
-/// Tokens are streamed via `AsyncStream<String>` for natural integration with SwiftUI.
+/// Swift actor isolation serializes access to the C context.
+/// The context streams tokens through `AsyncStream<String>` for
+/// easy integration with SwiftUI.
 public actor LlamaContext {
     private var model: OpaquePointer
     private var context: OpaquePointer
@@ -77,7 +78,8 @@ public actor LlamaContext {
         Self.releaseBackend()
     }
 
-    /// Generate text from a prompt, streaming tokens as they are produced.
+    /// Generate text from a prompt. The stream yields each
+    /// token when the model produces it.
     public func generate(
         prompt: String,
         maxTokens: Int32 = 512,

@@ -36,6 +36,15 @@ final class InferenceService {
     // MARK: - Model Lifecycle
 
     func loadModel(_ model: LocalModel) async throws {
+        do {
+            try await performLoad(model)
+        } catch {
+            loadError = error.localizedDescription
+            throw error
+        }
+    }
+
+    private func performLoad(_ model: LocalModel) async throws {
         let fit = DeviceCapability.canRunModel(
             fileSizeBytes: model.fileSizeBytes
         )
@@ -126,6 +135,18 @@ final class InferenceService {
             throw InferenceError.modelFileSizeMismatch(
                 expected: expected, actual: fileSize
             )
+        }
+
+        // Verify GGUF magic bytes to catch corrupt/incomplete files
+        guard let handle = try? FileHandle(forReadingFrom: url) else {
+            throw InferenceError.modelFileCorrupted(url.lastPathComponent)
+        }
+        defer { try? handle.close() }
+        let magic = handle.readData(ofLength: 4)
+        // GGUF magic: 0x47 0x47 0x55 0x46 ("GGUF")
+        let ggufMagic = Data([0x47, 0x47, 0x55, 0x46])
+        if magic != ggufMagic {
+            throw InferenceError.modelFileCorrupted(url.lastPathComponent)
         }
     }
 

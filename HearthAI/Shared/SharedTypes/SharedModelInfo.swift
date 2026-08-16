@@ -1,7 +1,7 @@
 import Foundation
 
-/// Lightweight model info shared between the main app and extensions.
-/// Does not depend on SwiftData.
+/// Lightweight model info that the main app and the extensions
+/// share. It does not depend on SwiftData.
 struct SharedModelInfo: Codable, Identifiable {
     let id: String
     let displayName: String
@@ -11,7 +11,7 @@ struct SharedModelInfo: Codable, Identifiable {
     let localPath: String
 
     /// Load available models from the shared container.
-    /// Can be called from both the main app and extensions.
+    /// The main app and the extensions can call this function.
     static func loadFromSharedContainer() -> [SharedModelInfo] {
         guard let url = AppGroupConstants.availableModelsURL,
               FileManager.default.fileExists(atPath: url.path),

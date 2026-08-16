@@ -34,6 +34,7 @@
 		3ECF7975DBD75B903E5EB857 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005D99CFD00EACE9FC742BC6 /* Message.swift */; };
 		4155E70AF69B2FC128572BEE /* DocumentPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61D6E2E7D7848264E97EC54 /* DocumentPickerSheet.swift */; };
 		43E8C3AD80BD3EB342DA7AC1 /* MemorySelectorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99C045015037CE756F3BEB1 /* MemorySelectorServiceTests.swift */; };
+		50F14A3B85FEFB1072896D76 /* ModelDeletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B140B31DF3B77E6254298D /* ModelDeletion.swift */; };
 		622062D7C8B261390A04FBA9 /* AppGroupConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943464BE9F3E3817391F7A53 /* AppGroupConstants.swift */; };
 		639A044C1753FF1410811004 /* SharedRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7974F4AB6E5FD1F7020ACC /* SharedRequestHandler.swift */; };
 		6B2EF1314D0BBFCCBB7D062F /* DocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29FD89E362F558F41CEC691 /* DocumentsView.swift */; };
@@ -50,6 +51,7 @@
 		8A5B36588755EFFB4BEA89EF /* HuggingFaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31143EB8502183C8C805EDD /* HuggingFaceTests.swift */; };
 		8A78CB0370790965C3B33F2D /* HuggingFaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A6F0DD2CF3C5F44E0C0190 /* HuggingFaceAPI.swift */; };
 		8B1AC9BF9971F0C7BF7BBB9E /* DocumentChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F08D71E4F9007C80ACDFD4 /* DocumentChunk.swift */; };
+		8F8032FAAA2214F3489929E5 /* Binding+IsPresent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50725A30679129DA0ABA368F /* Binding+IsPresent.swift */; };
 		910A8C1FFD6C00FCB79D6E0D /* SwiftDataCascadeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD6808C0B4D60CE08267A51 /* SwiftDataCascadeTests.swift */; };
 		94D339C97159BD1FE1910F02 /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1276338C3C40E6E21B3AF5F5 /* DownloadState.swift */; };
 		988A1466A3BB010F3686F065 /* HearthAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E903921FAA09285C7EC06626 /* HearthAIApp.swift */; };
@@ -158,6 +160,7 @@
 		4C92F5072BD6A923F4414F66 /* HearthAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HearthAI.entitlements; sourceTree = "<group>"; };
 		4D21045F4D81AD9F0E6874C6 /* LlamaCpp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LlamaCpp; path = Packages/LlamaCpp; sourceTree = SOURCE_ROOT; };
 		4D9CB851129C2E57E58FF870 /* HFModelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HFModelInfo.swift; sourceTree = "<group>"; };
+		50725A30679129DA0ABA368F /* Binding+IsPresent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+IsPresent.swift"; sourceTree = "<group>"; };
 		5D1D6195ED7695130A8D335C /* HearthAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HearthAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E60EC72A2F0D58CA567D91D /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		72772F3930C5C52045689935 /* DocumentImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImportViewModel.swift; sourceTree = "<group>"; };
@@ -205,6 +208,7 @@
 		EA5163E146981BFA10057E46 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		EDB65F51015E640BC7FB01B1 /* IntentInferenceHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentInferenceHelper.swift; sourceTree = "<group>"; };
 		F188207F9C44341F0DC70E52 /* RewriteTextIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewriteTextIntent.swift; sourceTree = "<group>"; };
+		F1B140B31DF3B77E6254298D /* ModelDeletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDeletion.swift; sourceTree = "<group>"; };
 		F61D6E2E7D7848264E97EC54 /* DocumentPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerSheet.swift; sourceTree = "<group>"; };
 		FAE5B7A251D3B6378AB662EA /* TextExtractorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextExtractorService.swift; sourceTree = "<group>"; };
 		FE3F54443400BD54DD98CF88 /* HearthShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HearthShortcutsProvider.swift; sourceTree = "<group>"; };
@@ -275,6 +279,7 @@
 		2615F59D3B7C69AFD409EC88 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F1B140B31DF3B77E6254298D /* ModelDeletion.swift */,
 				478341E3D3B3E805B83AB5FF /* SharedModelSync.swift */,
 				2D89E90D424B5C90473230EA /* DocumentProcessing */,
 				3F2C674A23C0DC92FA53DF35 /* Download */,
@@ -361,6 +366,7 @@
 		4621F5E7FFE74EB0509F1161 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				50725A30679129DA0ABA368F /* Binding+IsPresent.swift */,
 				CD7FB411EA3CC770171848E7 /* FileManager+AppSupport.swift */,
 			);
 			path = Extensions;
@@ -670,6 +676,7 @@
 				622062D7C8B261390A04FBA9 /* AppGroupConstants.swift in Sources */,
 				C7F2A3D0417981686B4E3052 /* AppState.swift in Sources */,
 				F25378990BEE3F1FCACD6897 /* AskHearthIntent.swift in Sources */,
+				8F8032FAAA2214F3489929E5 /* Binding+IsPresent.swift in Sources */,
 				113B66D2FA42EE2D775C50EF /* ChatSettingsSheet.swift in Sources */,
 				03A3AF701474977398790AA6 /* ChatView.swift in Sources */,
 				F09B9F855596430552F5A8FE /* ChatViewModel.swift in Sources */,
@@ -708,6 +715,7 @@
 				F4BA58A56B53AC4EECD46AE7 /* MemoryView.swift in Sources */,
 				3ECF7975DBD75B903E5EB857 /* Message.swift in Sources */,
 				73CE4807A74F2AD7AC5B03A0 /* MessageBubble.swift in Sources */,
+				50F14A3B85FEFB1072896D76 /* ModelDeletion.swift in Sources */,
 				CDB4579A512B12F942C6E768 /* ModelDetailView.swift in Sources */,
 				A8F8386F0CC30F0FDEB0FA60 /* ModelPickerSheet.swift in Sources */,
 				80B7CA2CFD0017FD15878CE4 /* ModelStoreView.swift in Sources */,

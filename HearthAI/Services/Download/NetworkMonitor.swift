@@ -24,7 +24,8 @@ final class NetworkMonitor {
         monitor.cancel()
     }
 
-    /// Returns true if the file size exceeds the cellular warning threshold (200 MB)
+    /// Returns true if the file size is more than the cellular
+    /// warning threshold (200 MB).
     func shouldWarnForCellular(fileSize: Int64) -> Bool {
         isCellular && fileSize > 200 * 1024 * 1024
     }

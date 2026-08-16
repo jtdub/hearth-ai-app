@@ -61,20 +61,17 @@ struct ModelPickerSheet: View {
                     }
                 }
             }
-            .alert("Load Error", isPresented: .init(
-                get: { loadError != nil },
-                set: { if !$0 { loadError = nil } }
-            )) {
+            .alert(
+                "Load Error",
+                isPresented: .init(isPresent: $loadError)
+            ) {
                 Button("OK") { loadError = nil }
             } message: {
                 Text(loadError ?? "")
             }
             .confirmationDialog(
                 "Memory Warning",
-                isPresented: .init(
-                    get: { modelToConfirm != nil },
-                    set: { if !$0 { modelToConfirm = nil } }
-                ),
+                isPresented: .init(isPresent: $modelToConfirm),
                 titleVisibility: .visible
             ) {
                 Button("Load Anyway") {
@@ -82,9 +79,7 @@ struct ModelPickerSheet: View {
                         loadModel(model)
                     }
                 }
-                Button("Cancel", role: .cancel) {
-                    modelToConfirm = nil
-                }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text(
                     DeviceCapability.canRunModel(

@@ -72,7 +72,7 @@ final class ChatViewModel {
                 await inferenceService.cancelGeneration()
                 break
             }
-            timeoutState.recordToken()
+            await timeoutState.recordToken()
             streamingText += token
 
             if trimStopTokens(stopTokens) {
@@ -83,7 +83,7 @@ final class ChatViewModel {
 
         timeoutTask.cancel()
         cleanStopTokens(stopTokens)
-        return timeoutState.didTimeout
+        return await timeoutState.didTimeout
     }
 
     private func makeTimeoutTask(
@@ -93,7 +93,7 @@ final class ChatViewModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(5))
                 guard !Task.isCancelled else { return }
-                let info = state.currentState()
+                let info = await state.currentState()
                 let elapsed = Date().timeIntervalSince(
                     info.lastTokenTime
                 )
@@ -101,7 +101,7 @@ final class ChatViewModel {
                     ? Constants.interTokenTimeoutSeconds
                     : Constants.firstTokenTimeoutSeconds
                 if elapsed > limit {
-                    state.markTimeout()
+                    await state.markTimeout()
                     await service.cancelGeneration()
                     return
                 }
@@ -110,14 +110,12 @@ final class ChatViewModel {
     }
 
     private func trimStopTokens(_ tokens: [String]) -> Bool {
-        guard tokens.contains(where: {
+        guard let stop = tokens.first(where: {
             streamingText.hasSuffix($0)
         }) else { return false }
-        for stop in tokens where streamingText.hasSuffix(stop) {
-            streamingText = String(
-                streamingText.dropLast(stop.count)
-            )
-        }
+        streamingText = String(
+            streamingText.dropLast(stop.count)
+        )
         return true
     }
 
@@ -415,30 +413,24 @@ struct ChatMessage: Identifiable {
     let createdAt = Date()
 }
 
-final class TimeoutState: @unchecked Sendable {
-    private let lock = NSLock()
-    private var _lastTokenTime = Date()
-    private var _receivedFirstToken = false
+/// Tracks token arrival times for the inference watchdog.
+actor TimeoutState {
+    private var lastTokenTime = Date()
+    private var receivedFirstToken = false
     private(set) var didTimeout = false
 
     func recordToken() {
-        lock.lock()
-        _lastTokenTime = Date()
-        _receivedFirstToken = true
-        lock.unlock()
+        lastTokenTime = Date()
+        receivedFirstToken = true
     }
 
     func currentState() -> (
         lastTokenTime: Date, receivedFirstToken: Bool
     ) {
-        lock.lock()
-        defer { lock.unlock() }
-        return (_lastTokenTime, _receivedFirstToken)
+        (lastTokenTime, receivedFirstToken)
     }
 
     func markTimeout() {
-        lock.lock()
         didTimeout = true
-        lock.unlock()
     }
 }

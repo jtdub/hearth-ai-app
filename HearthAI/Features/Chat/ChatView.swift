@@ -46,10 +46,7 @@ struct ChatView: View {
             .alert(
                 "Inference Error",
                 isPresented: .init(
-                    get: { viewModel.inferenceError != nil },
-                    set: {
-                        if !$0 { viewModel.inferenceError = nil }
-                    }
+                    isPresent: $viewModel.inferenceError
                 )
             ) {
                 Button("OK") { viewModel.inferenceError = nil }
@@ -190,36 +187,10 @@ struct ChatView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            Image(systemName: "flame")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
-            Text("Welcome to Hearth AI")
-                .font(.title2.bold())
-            Text("Your private, on-device AI assistant.\nType a message to get started.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            if inferenceService.isLoading {
-                    ProgressView()
-                        .padding(.top, 4)
-                    Text("Loading model...")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else if !inferenceService.isModelLoaded {
-                    Text(
-                        "No model loaded."
-                            + " Tap the brain icon to select one."
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .padding(.top, 4)
-                }
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 80)
+        ChatEmptyState(
+            inferenceService: inferenceService,
+            showModelPicker: $showModelPicker
+        )
     }
 
     private var documentBadge: some View {
@@ -297,19 +268,19 @@ struct ChatView: View {
 
     // MARK: - Actions
 
-    private var canSend: Bool {
-        let text = inputText.trimmingCharacters(
+    private var trimmedInput: String {
+        inputText.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
-        return !text.isEmpty && inferenceService.isModelLoaded
+    }
+
+    private var canSend: Bool {
+        !trimmedInput.isEmpty && inferenceService.isModelLoaded
     }
 
     private func submitMessage() {
-        let text = inputText.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-        guard !text.isEmpty,
-              inferenceService.isModelLoaded else { return }
+        guard canSend else { return }
+        let text = trimmedInput
         inputText = ""
         Task { await viewModel.send(text) }
     }
@@ -334,4 +305,59 @@ struct ChatView: View {
         .environment(AppState())
         .environment(InferenceService())
         .modelContainer(for: [Conversation.self, Message.self], inMemory: true)
+}
+
+// MARK: - Chat Empty State
+
+private struct ChatEmptyState: View {
+    let inferenceService: InferenceService
+    @Binding var showModelPicker: Bool
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: "flame")
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+            Text("Welcome to Hearth AI")
+                .font(.title2.bold())
+            Text(
+                "Your private, on-device AI assistant."
+                    + "\nType a message to get started."
+            )
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            if inferenceService.isLoading {
+                ProgressView()
+                    .padding(.top, 4)
+                Text("Loading model...")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else if !inferenceService.isModelLoaded {
+                if let error = inferenceService.loadError {
+                    Text("Failed to load model: \(error)")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 4)
+                }
+                Button {
+                    showModelPicker = true
+                } label: {
+                    Label(
+                        "Select a Model",
+                        systemImage: "brain"
+                    )
+                    .font(.subheadline.bold())
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .padding(.top, 8)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 80)
+    }
 }

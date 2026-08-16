@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file gives guidance to Claude Code (claude.ai/code) for work with code in this repository.
 
 ## Project Overview
 
-Hearth AI is a multi-platform (iOS, macOS, visionOS) app for on-device LLM inference using llama.cpp. It supports browsing/downloading models from Hugging Face Hub, running them locally with Metal GPU acceleration, document Q&A with chunked retrieval, conversation memory with TF-IDF relevance scoring, a Share Extension, and App Intents for Siri/Shortcuts. Zero third-party Swift dependencies beyond the vendored llama.cpp submodule.
+Hearth AI is a multi-platform app (iOS, macOS, visionOS) for on-device LLM inference with llama.cpp. Users can browse and download models from Hugging Face Hub, and run them locally with Metal GPU acceleration. The app also has document Q&A with chunked retrieval, conversation memory with TF-IDF relevance scores, a Share Extension, and App Intents for Siri and Shortcuts. The app has zero third-party Swift dependencies beyond the vendored llama.cpp submodule.
 
 ## Build & Development
 

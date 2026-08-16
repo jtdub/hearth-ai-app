@@ -2,9 +2,9 @@ import Foundation
 
 enum ChunkSelectorService {
 
-    /// Selects the most relevant chunks for a query using TF-IDF
-    /// scoring. Returns chunks sorted by relevance, up to
-    /// `maxTokenBudget` total estimated tokens.
+    /// Selects the most relevant chunks for a query with
+    /// TF-IDF scores. Returns the chunks in relevance order,
+    /// up to a total of `maxTokenBudget` estimated tokens.
     static func selectChunks(
         query: String,
         chunks: [DocumentChunk],

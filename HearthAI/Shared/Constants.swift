@@ -10,6 +10,9 @@ enum Constants {
     static let firstTokenTimeoutSeconds: TimeInterval = 120
     static let interTokenTimeoutSeconds: TimeInterval = 30
 
+    // UserDefaults keys
+    static let defaultModelIdKey = "defaultModelId"
+
     // Document processing
     static let defaultChunkSize: Int = 512
     static let defaultChunkOverlap: Int = 50

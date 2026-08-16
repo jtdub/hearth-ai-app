@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// Sheet for selecting a document to attach to a chat conversation.
+/// Sheet to select a document to attach to a chat conversation.
 struct DocumentPickerSheet: View {
     let onSelect: (Document) -> Void
     @Environment(\.dismiss) private var dismiss

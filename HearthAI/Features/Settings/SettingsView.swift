@@ -3,7 +3,8 @@ import SwiftData
 
 struct SettingsView: View {
     @AppStorage("appTheme") private var appTheme = "system"
-    @AppStorage("defaultModelId") private var defaultModelId = ""
+    @AppStorage(Constants.defaultModelIdKey)
+    private var defaultModelId = ""
     @Environment(InferenceService.self) private var inferenceService
     @Query(sort: \LocalModel.downloadedAt, order: .reverse)
     private var models: [LocalModel]

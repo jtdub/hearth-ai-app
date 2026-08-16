@@ -2,9 +2,9 @@ import Foundation
 import SwiftData
 import LlamaCpp
 
-/// Runs inference for App Intents using LlamaContext directly.
-/// Avoids MainActor dependency by working with the actor-isolated
-/// LlamaContext.
+/// Runs inference for App Intents with LlamaContext directly.
+/// It does not depend on MainActor because it uses the
+/// actor-isolated LlamaContext.
 enum IntentInferenceHelper {
 
     struct Result {

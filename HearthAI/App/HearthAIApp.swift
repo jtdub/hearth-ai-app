@@ -43,8 +43,8 @@ struct HearthAIApp: App {
                     setupDownloadCompletion()
                     syncModelList()
                     Task { @MainActor in
-                        registerExistingModels()
-                        autoLoadModel()
+                        let models = registerExistingModels()
+                        autoLoadModel(from: models)
                     }
                 }
                 .onOpenURL { url in
@@ -93,16 +93,11 @@ struct HearthAIApp: App {
     }
 
     @MainActor
-    private func autoLoadModel() {
-        guard appState.inferenceService.loadedModelId == nil
-        else { return }
-        let context = modelContainer.mainContext
-        guard let models = try? context.fetch(
-            FetchDescriptor<LocalModel>()
-        ), !models.isEmpty else { return }
+    private func autoLoadModel(from models: [LocalModel]) {
+        guard !models.isEmpty else { return }
 
         let defaultId = UserDefaults.standard.string(
-            forKey: "defaultModelId"
+            forKey: Constants.defaultModelIdKey
         ) ?? ""
 
         let target: LocalModel?
@@ -116,27 +111,36 @@ struct HearthAIApp: App {
         } else {
             target = models
                 .filter { $0.lastUsedAt != nil }
-                .sorted {
+                .max {
                     ($0.lastUsedAt ?? .distantPast)
-                        > ($1.lastUsedAt ?? .distantPast)
+                        < ($1.lastUsedAt ?? .distantPast)
                 }
-                .first
         }
 
         guard let model = target else { return }
+        autoLoadIfIdle(model)
+    }
+
+    /// Loads the model in the background when no model is
+    /// loaded and the model fits in memory.
+    @MainActor
+    private func autoLoadIfIdle(_ model: LocalModel) {
+        guard appState.inferenceService.loadedModelId == nil
+        else { return }
         let fit = DeviceCapability.canRunModel(
             fileSizeBytes: model.fileSizeBytes
         )
         guard fit != .tooLarge else { return }
         Task {
-            try? await appState.inferenceService.loadModel(
-                model
-            )
+            try? await appState.inferenceService.loadModel(model)
         }
     }
 
+    /// Registers model files on disk that have no SwiftData
+    /// record, and returns the models that remain after cleanup.
     @MainActor
-    private func registerExistingModels() {
+    @discardableResult
+    private func registerExistingModels() -> [LocalModel] {
         let modelsDir = FileManager.modelsDirectory
         let context = modelContainer.mainContext
 
@@ -144,7 +148,7 @@ struct HearthAIApp: App {
             at: modelsDir,
             includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
             options: [.skipsHiddenFiles]
-        ) else { return }
+        ) else { return [] }
 
         var registeredCount = 0
 
@@ -200,7 +204,7 @@ struct HearthAIApp: App {
             try? context.save()
         }
 
-        cleanupMissingModels(context: context)
+        return cleanupMissingModels(context: context)
     }
 
     @MainActor
@@ -226,24 +230,33 @@ struct HearthAIApp: App {
         return false
     }
 
+    /// Deletes records for model files that are not on disk,
+    /// and returns the models that remain.
     @MainActor
-    private func cleanupMissingModels(context: ModelContext) {
+    private func cleanupMissingModels(
+        context: ModelContext
+    ) -> [LocalModel] {
         guard let allModels = try? context.fetch(
             FetchDescriptor<LocalModel>()
-        ) else { return }
+        ) else { return [] }
 
+        var remaining: [LocalModel] = []
         var removedCount = 0
-        for model in allModels
-        where !FileManager.default.fileExists(
-            atPath: model.absolutePath.path
-        ) {
-            context.delete(model)
-            removedCount += 1
+        for model in allModels {
+            if FileManager.default.fileExists(
+                atPath: model.absolutePath.path
+            ) {
+                remaining.append(model)
+            } else {
+                context.delete(model)
+                removedCount += 1
+            }
         }
 
         if removedCount > 0 {
             try? context.save()
         }
+        return remaining
     }
 
     private func extractRepoId(
@@ -295,18 +308,7 @@ struct HearthAIApp: App {
         context.insert(model)
         try? context.save()
         modelSync.syncModels(context: context)
-
-        if appState.inferenceService.loadedModelId == nil {
-            let fit = DeviceCapability.canRunModel(
-                fileSizeBytes: model.fileSizeBytes
-            )
-            if fit != .tooLarge {
-                Task {
-                    try? await appState.inferenceService
-                        .loadModel(model)
-                }
-            }
-        }
+        autoLoadIfIdle(model)
     }
 
 }

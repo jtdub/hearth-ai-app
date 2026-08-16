@@ -22,10 +22,10 @@ struct LibraryView: View {
                     storageInfo
                 }
             }
-            .alert("Delete Model?", isPresented: .init(
-                get: { modelToDelete != nil },
-                set: { if !$0 { modelToDelete = nil } }
-            )) {
+            .alert(
+                "Delete Model?",
+                isPresented: .init(isPresent: $modelToDelete)
+            ) {
                 Button("Cancel", role: .cancel) { modelToDelete = nil }
                 Button("Delete", role: .destructive) {
                     if let model = modelToDelete {
@@ -127,15 +127,12 @@ struct LibraryView: View {
     // MARK: - Actions
 
     private func deleteModel(_ model: LocalModel) {
-        let fileURL = model.absolutePath
-        let isLoaded = inferenceService.loadedModelId == model.id
         Task { @MainActor in
-            if isLoaded {
-                await inferenceService.unloadModel()
-            }
-            try? FileManager.default.removeItem(at: fileURL)
-            modelContext.delete(model)
-            try? modelContext.save()
+            await ModelDeletion.delete(
+                model,
+                context: modelContext,
+                inferenceService: inferenceService
+            )
             modelToDelete = nil
         }
     }

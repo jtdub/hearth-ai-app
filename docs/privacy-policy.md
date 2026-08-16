@@ -4,42 +4,42 @@
 
 ## Overview
 
-Hearth AI is designed with privacy as a core principle. All AI processing happens entirely on your device. No data ever leaves your device.
+Privacy is a core principle of Hearth AI. All AI processing occurs on your device. No data leaves your device.
 
 ## Data Collection
 
-**Hearth AI collects no data.** We do not collect, store, transmit, or share any personal information, usage data, analytics, or telemetry of any kind.
+**Hearth AI collects no data.** We do not collect, store, transmit, or share personal information, usage data, analytics, or telemetry of any kind.
 
 ## On-Device Processing
 
-- All AI model inference runs locally on your device using on-device hardware acceleration.
-- Your conversations, documents, and memories are stored only on your device using Apple's SwiftData framework.
-- Model files (GGUF format) are downloaded directly from Hugging Face Hub to your device. We do not proxy, log, or monitor these downloads.
+- All AI model inference runs locally on your device with on-device hardware acceleration.
+- The app stores your conversations, documents, and memories only on your device with Apple's SwiftData framework.
+- The app downloads model files (GGUF format) directly from Hugging Face Hub to your device. We do not proxy, log, or monitor these downloads.
 
 ## Network Usage
 
-The only network requests Hearth AI makes are:
-- **Browsing models:** Requests to the Hugging Face Hub API to browse and search available models.
-- **Downloading models:** Direct downloads of model weight files from Hugging Face Hub.
+Hearth AI makes only these network requests:
+- **Model browsing:** Requests to the Hugging Face Hub API to browse and search available models.
+- **Model downloads:** Direct downloads of model weight files from Hugging Face Hub.
 
-No user data, conversations, or personal information is included in any network request.
+No network request contains user data, conversations, or personal information.
 
 ## Third-Party Services
 
-Hearth AI connects to [Hugging Face Hub](https://huggingface.co) solely for model discovery and download. We have no control over Hugging Face's privacy practices. Please refer to [Hugging Face's Privacy Policy](https://huggingface.co/privacy) for details.
+Hearth AI connects to [Hugging Face Hub](https://huggingface.co) only for model discovery and model downloads. We have no control over the privacy practices of Hugging Face. Refer to [Hugging Face's Privacy Policy](https://huggingface.co/privacy) for details.
 
 ## Data Storage
 
-All app data (conversations, documents, memories, and downloaded models) is stored locally on your device. Data is shared between the main app and the Share Extension via an App Group container, but never leaves your device.
+The app stores all app data (conversations, documents, memories, and downloaded models) locally on your device. The main app and the Share Extension share data through an App Group container. This data does not leave your device.
 
 ## Children's Privacy
 
-Hearth AI does not collect any data from any users, including children.
+Hearth AI does not collect data from any users, and this includes children.
 
 ## Changes to This Policy
 
-If we update this policy, we will post the revised version here with an updated date.
+If we update this policy, we will post the new version here with a new date.
 
 ## Contact
 
-If you have questions about this privacy policy, please open an issue on our [GitHub repository](https://github.com/jtdub/hearth-ai-app).
+If you have questions about this privacy policy, open an issue on our [GitHub repository](https://github.com/jtdub/hearth-ai-app).

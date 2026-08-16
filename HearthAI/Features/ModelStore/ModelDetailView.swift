@@ -72,8 +72,13 @@ struct FileRow: View {
     let isDownloaded: Bool
     let activeDownload: DownloadInfo?
     @Environment(DownloadService.self) private var downloadService
+    @Environment(InferenceService.self) private var inferenceService
     @Environment(NetworkMonitor.self) private var networkMonitor
+    @Environment(\.modelContext) private var modelContext
     @State private var showCellularAlert = false
+    @State private var showDeleteConfirmation = false
+
+    private var modelId: String { "\(repoId)/\(file.fileName)" }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -88,9 +93,34 @@ struct FileRow: View {
             .foregroundStyle(.secondary)
 
             if isDownloaded {
-                Label("Downloaded", systemImage: "checkmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
+                HStack {
+                    Label("Downloaded", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                    Spacer()
+                    Button(role: .destructive) {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                            .font(.caption)
+                    }
+                }
+                .confirmationDialog(
+                    "Delete Model",
+                    isPresented: $showDeleteConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button("Delete", role: .destructive) {
+                        deleteModel()
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text(
+                        "This will remove \(file.fileName)"
+                            + " (\(file.formattedSize)) from"
+                            + " your device."
+                    )
+                }
             } else if let download = activeDownload {
                 DownloadProgressRow(download: download)
             } else {
@@ -133,6 +163,21 @@ struct FileRow: View {
                 "This file is \(file.formattedSize). "
                 + "Downloading over cellular may use significant data. "
                 + "Connect to Wi-Fi for the best experience."
+            )
+        }
+    }
+
+    private func deleteModel() {
+        let descriptor = FetchDescriptor<LocalModel>(
+            predicate: #Predicate { $0.id == modelId }
+        )
+        guard let model = try? modelContext.fetch(descriptor).first
+        else { return }
+        Task { @MainActor in
+            await ModelDeletion.delete(
+                model,
+                context: modelContext,
+                inferenceService: inferenceService
             )
         }
     }

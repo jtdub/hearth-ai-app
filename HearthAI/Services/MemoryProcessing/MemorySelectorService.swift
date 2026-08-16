@@ -2,9 +2,9 @@ import Foundation
 
 enum MemorySelectorService {
 
-    /// Selects the most relevant memories for a query using TF-IDF
-    /// scoring. Returns memories sorted by relevance, up to
-    /// `maxTokenBudget` total estimated tokens.
+    /// Selects the most relevant memories for a query with
+    /// TF-IDF scores. Returns the memories in relevance order,
+    /// up to a total of `maxTokenBudget` estimated tokens.
     static func selectMemories(
         query: String,
         memories: [Memory],

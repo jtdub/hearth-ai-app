@@ -4,37 +4,40 @@ import Testing
 
 // MARK: - TimeoutState Tests
 
-@Test func timeoutStateInitialValues() {
+@Test func timeoutStateInitialValues() async {
     let state = TimeoutState()
-    let info = state.currentState()
+    let info = await state.currentState()
     #expect(!info.receivedFirstToken)
-    #expect(!state.didTimeout)
+    let timedOut = await state.didTimeout
+    #expect(!timedOut)
 }
 
-@Test func timeoutStateRecordToken() {
+@Test func timeoutStateRecordToken() async {
     let state = TimeoutState()
     let before = Date()
-    state.recordToken()
-    let info = state.currentState()
+    await state.recordToken()
+    let info = await state.currentState()
     #expect(info.receivedFirstToken)
     #expect(info.lastTokenTime >= before)
 }
 
-@Test func timeoutStateMultipleTokens() {
+@Test func timeoutStateMultipleTokens() async {
     let state = TimeoutState()
-    state.recordToken()
-    let first = state.currentState().lastTokenTime
-    Thread.sleep(forTimeInterval: 0.01)
-    state.recordToken()
-    let second = state.currentState().lastTokenTime
+    await state.recordToken()
+    let first = await state.currentState().lastTokenTime
+    try? await Task.sleep(for: .milliseconds(10))
+    await state.recordToken()
+    let second = await state.currentState().lastTokenTime
     #expect(second > first)
 }
 
-@Test func timeoutStateMarkTimeout() {
+@Test func timeoutStateMarkTimeout() async {
     let state = TimeoutState()
-    #expect(!state.didTimeout)
-    state.markTimeout()
-    #expect(state.didTimeout)
+    let initial = await state.didTimeout
+    #expect(!initial)
+    await state.markTimeout()
+    let timedOut = await state.didTimeout
+    #expect(timedOut)
 }
 
 @Test func timeoutStateConcurrentAccess() async {
@@ -42,12 +45,12 @@ import Testing
 
     await withTaskGroup(of: Void.self) { group in
         for _ in 0..<100 {
-            group.addTask { state.recordToken() }
-            group.addTask { _ = state.currentState() }
+            group.addTask { await state.recordToken() }
+            group.addTask { _ = await state.currentState() }
         }
     }
 
-    let info = state.currentState()
+    let info = await state.currentState()
     #expect(info.receivedFirstToken)
 }
 

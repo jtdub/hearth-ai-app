@@ -56,9 +56,9 @@
 | UI Framework | SwiftUI + MVVM | Native, declarative, fits iOS 17+ target |
 | Persistence | SwiftData | Apple-native, simpler than Core Data, iOS 17+ |
 | llama.cpp integration | Swift Package (local) | Best Xcode integration, easier updates, no manual XCFramework builds |
-| Networking | URLSession (background) | Native background download support, no 3rd-party dependency |
-| Model format | GGUF only | llama.cpp native format, single format simplifies everything |
-| Navigation | TabView (3 tabs) | Chat, Model Store, Settings — clean separation |
+| Networking | URLSession (background) | Native background download support, no third-party dependency |
+| Model format | GGUF only | llama.cpp native format; one format makes the design simpler |
+| Navigation | TabView (3 tabs) | Chat, Model Store, Settings — clear separation |
 
 ---
 
@@ -164,7 +164,7 @@ HearthAI/
 |---------|---------|-------|
 | LlamaCpp (local) | llama.cpp inference | Local package in `Packages/` |
 
-**No external SPM dependencies.** The goal is zero third-party dependencies beyond llama.cpp itself. URLSession handles networking. SwiftData handles persistence. SwiftUI handles UI.
+**No external SPM dependencies.** The goal is zero third-party dependencies except llama.cpp itself. URLSession does the networking. SwiftData does the persistence. SwiftUI does the UI.
 
 ---
 
@@ -172,12 +172,12 @@ HearthAI/
 
 ### 1. llama.cpp Integration — Local Swift Package
 
-**Why a local Swift Package over XCFramework:**
+**Why a local Swift Package and not an XCFramework:**
 - Xcode builds it as part of the project — no separate build step
-- Easy to update llama.cpp (just update the git submodule)
+- To update llama.cpp, update the git submodule
 - Supports incremental builds
-- The C++ interop is cleaner with modulemaps in SPM
-- XCFramework requires pre-building for each architecture, more CI complexity
+- The C++ interop is simpler with modulemaps in SPM
+- An XCFramework needs a pre-build for each architecture, which makes CI more complex
 
 **Package.swift:**
 
@@ -239,7 +239,7 @@ let package = Package(
 )
 ```
 
-> **Important gotcha:** llama.cpp's source file list changes between releases. You'll need to audit which `.c`/`.cpp` files are needed when updating. Reference the llama.cpp CMakeLists.txt for the current file list. The list above is illustrative — the actual set of source files depends on the llama.cpp version you vendor.
+> **Caution:** The llama.cpp source file list changes between releases. When you update, examine which `.c`/`.cpp` files are necessary. See the llama.cpp CMakeLists.txt for the current file list. The list above is an example — the applicable source files depend on the llama.cpp version that you vendor.
 
 **C Bridge Header (`llama_bridge.h`):**
 
@@ -452,14 +452,14 @@ final class Message {
 }
 ```
 
-**Why SwiftData over alternatives:**
-- **vs Core Data:** SwiftData is the modern replacement, simpler API, macro-based, better SwiftUI integration. iOS 17+ target makes this viable.
-- **vs flat JSON:** No query capability, no migration support, manual serialization. Fine for a manifest but not for conversation history that could grow large.
-- **vs SQLite (direct):** SwiftData gives us the query power without raw SQL boilerplate.
+**Why SwiftData and not the alternatives:**
+- **vs Core Data:** SwiftData is the modern replacement. It has a simpler API, uses macros, and integrates better with SwiftUI. The iOS 17+ target makes this possible.
+- **vs flat JSON:** Flat JSON has no queries, no migration support, and manual serialization. It is satisfactory for a manifest, but not for a conversation history that can become large.
+- **vs SQLite (direct):** SwiftData gives the same query functions without raw SQL code.
 
 **Settings — UserDefaults (via AppStorage):**
 
-Settings are simple key-value pairs. No need for heavier persistence:
+Settings are simple key-value pairs. They do not need a heavier persistence layer:
 
 ```swift
 // Used directly in SwiftUI views via @AppStorage
@@ -486,7 +486,7 @@ GET https://huggingface.co/api/models/{repo_id}/tree/main
 GET https://huggingface.co/resolve/{repo_id}/main/{filename}
 ```
 
-**Auth considerations:** The HF API is publicly accessible for public repos without authentication. No API key needed for browsing and downloading public GGUF models. Rate limits are generous for unauthenticated requests (~reasonable for an app's usage). If rate limiting becomes an issue, users could optionally provide a HF token in settings.
+**Authentication:** The HF API is open for public repos without authentication. You do not need an API key to browse and download public GGUF models. The rate limits for unauthenticated requests are enough for the usage of an app. If rate limits become a problem, users can supply an optional HF token in settings.
 
 **HuggingFaceAPI.swift (key patterns):**
 
@@ -607,7 +607,7 @@ final class DownloadService: NSObject, ObservableObject, URLSessionDownloadDeleg
 }
 ```
 
-**Download queue strategy:** Serial downloads (one at a time). GGUF files are 2-8 GB. Concurrent downloads would saturate bandwidth and risk iOS killing the app for excessive resource use. Queue additional downloads and start the next when one finishes.
+**Download queue strategy:** Download files one at a time (serial queue). GGUF files are 2-8 GB. Concurrent downloads would use all the bandwidth, and iOS could stop the app for too much resource use. Put more downloads in a queue. Start the next download when one download completes.
 
 ### 4. Inference Layer
 
@@ -633,10 +633,10 @@ Main Thread (SwiftUI)
     │                                                       └── @MainActor update UI
 ```
 
-- **LlamaContext is a Swift `actor`** — serializes access, prevents concurrent inference calls
-- **Inference runs in `Task.detached`** — never blocks the actor or main thread
-- **Tokens stream via `AsyncStream`** — clean backpressure, natural cancellation
-- **Cancel flag** — volatile bool pointer shared with C++ for immediate stop
+- **LlamaContext is a Swift `actor`** — it serializes access and prevents concurrent inference calls
+- **Inference runs in `Task.detached`** — it does not block the actor or the main thread
+- **Tokens stream through `AsyncStream`** — this gives backpressure control and easy cancellation
+- **Cancel flag** — a volatile bool pointer, shared with C++, stops generation immediately
 
 **Model Loading/Unloading:**
 
@@ -679,7 +679,7 @@ final class InferenceService: ObservableObject {
 }
 ```
 
-**Keeping models "warm":** The model stays loaded in the `InferenceService.context` property between conversations. To handle memory pressure:
+**Keep the model loaded in memory:** The model stays loaded in the `InferenceService.context` property between conversations. To manage memory pressure:
 
 ```swift
 // In AppState or InferenceService init
@@ -691,7 +691,7 @@ NotificationCenter.default.addObserver(
 }
 ```
 
-Strategy: Keep the model loaded until (a) the user switches models, (b) a memory warning fires, or (c) the app backgrounds for >60 seconds. On relaunch or return from background, reload lazily when the user sends a message.
+Strategy: Keep the model loaded. Unload it when the user changes models. Unload it when a memory warning occurs. Unload it when the app stays in the background for more than 60 seconds. After a relaunch or a return from the background, load the model again when the user sends a message.
 
 **Context Management / Conversation Windowing:**
 
@@ -725,7 +725,7 @@ func buildPrompt(messages: [Message], systemPrompt: String, maxContext: Int32) -
 }
 ```
 
-> **Note:** Different model families use different chat templates. The prompt builder should be template-aware. Store the template type as metadata on the model (Llama, ChatML, Phi, etc.) and switch formatting accordingly.
+> **Note:** Different model families use different chat templates. Make the prompt builder template-aware. Store the template type as metadata on the model (Llama, ChatML, Phi, etc.). Change the format to agree with the template type.
 
 ### 5. SwiftUI Architecture
 
@@ -791,7 +791,7 @@ final class ChatViewModel {
 }
 ```
 
-**Chat View — streaming display:**
+**Chat View — show the streamed text:**
 
 ```swift
 struct ChatView: View {
@@ -878,56 +878,56 @@ final class ThermalMonitor: ObservableObject {
 |---|---|---|
 | Build integration | Automatic, Xcode builds it | Manual pre-build step |
 | Updating llama.cpp | Update submodule, rebuild | Rebuild framework, re-import |
-| Debug symbols | Full, step into C++ code | Requires dSYM management |
+| Debug symbols | Full, step into C++ code | Needs dSYM management |
 | CI complexity | Low — just `xcodebuild` | High — separate build script per arch |
 | Initial setup | More work to get Package.swift right | Simpler if you have a working build |
 
-**Tradeoff:** The Package.swift for llama.cpp is fiddly to get right (source file lists, header search paths, Metal framework linking). But once working, it's far easier to maintain. Reference LLM Farm's approach — they use a similar local package pattern.
+**Tradeoff:** The Package.swift for llama.cpp is difficult to configure correctly (source file lists, header search paths, Metal framework links). But after it operates, it is much easier to maintain. See the approach of LLM Farm — they use a similar local package pattern.
 
-### 2. Keeping a model "warm" in memory?
+### 2. Keep a model loaded in memory?
 
-**Strategy: Hold the `LlamaContext` in `InferenceService`, release on memory warning.**
+**Strategy: Hold the `LlamaContext` in `InferenceService`. Release it on a memory warning.**
 
-- Keep the model loaded between conversations. Loading a 4GB model takes 2-5 seconds; users will notice if they have to wait each time.
-- Register for `didReceiveMemoryWarningNotification` and unload immediately.
-- When the app backgrounds, start a 60-second timer. If the app doesn't foreground within that window, unload. This prevents iOS from killing the app for excessive background memory use.
-- For context: a Q4_K_M 7B model uses ~4GB RAM. iPhone 15 Pro has 8GB total, ~5-6GB available to apps. This leaves headroom, but a Q4_K_M 13B model (~7.5GB) will be tight. The device gating feature (Phase 3) should prevent users from downloading models that won't fit.
+- Keep the model loaded between conversations. A 4GB model takes 2-5 seconds to load. Users will see the delay if they must wait each time.
+- Register for `didReceiveMemoryWarningNotification` and unload the model immediately.
+- When the app goes to the background, start a 60-second timer. If the app does not return to the foreground in that time, unload the model. This prevents iOS from stopping the app for too much background memory use.
+- For reference: a Q4_K_M 7B model uses about 4GB RAM. The iPhone 15 Pro has 8GB total, and about 5-6GB is available to apps. This gives spare memory, but a Q4_K_M 13B model (about 7.5GB) leaves almost no spare memory. The device gating feature (Phase 3) must prevent downloads of models that do not fit.
 
 ### 3. App Store considerations for large post-install downloads?
 
-Key guidelines to comply with:
+Obey these guidelines:
 
-- **Guideline 2.5.4:** Apps that download code (executable) may be rejected. GGUF model files are **data files, not executable code** — they're weight matrices. This is the same as downloading images or audio. However, clearly present models as "data" in any review notes.
-- **Guideline 4.2.3:** The app must be functional on launch (without downloads). Include a clear onboarding flow that guides users to download their first model. Consider bundling a tiny model (~100MB) for instant first-run experience, or make it clear the app requires a download to function (like a podcast app needs episodes).
+- **Guideline 2.5.4:** Apple can reject apps that download executable code. GGUF model files are **data files, not executable code** — they are weight matrices. This is the same as a download of images or audio. But make sure that all review notes show the models as data.
+- **Guideline 4.2.3:** The app must operate at launch (without downloads). Include a clear onboarding flow that shows users how to download their first model. One option is a small bundled model (about 100MB) for immediate first use. A second option is to show clearly that the app needs a download to operate, the same as a podcast app needs episodes.
 - **Review note to submit:** "Hearth AI is a local AI chat application. Model files are neural network weight data (GGUF format) downloaded from Hugging Face Hub. These are not executable code. All inference runs on-device using the open-source llama.cpp library. No user data leaves the device."
-- **Storage:** Use `Application Support` directory (not Documents or Caches). Mark files with `isExcludedFromBackup = true` to prevent multi-GB iCloud backups.
-- **NSAppTransportSecurity:** huggingface.co uses HTTPS — no ATS exceptions needed.
+- **Storage:** Use the `Application Support` directory (not Documents or Caches). Set `isExcludedFromBackup = true` on the files to prevent iCloud backups of many GB.
+- **NSAppTransportSecurity:** huggingface.co uses HTTPS — no ATS exceptions are necessary.
 
 ### 4. Quantization recommendations by device?
 
 | Device | RAM | Recommended Quants | Max Model Size |
 |--------|-----|-------------------|----------------|
-| iPhone 13 Pro / 14 Pro | 6 GB | Q4_K_M (1-3B), Q4_K_S (7B) | ~3.5 GB file |
-| iPhone 15 Pro / 16 Pro | 8 GB | Q4_K_M (7B), Q5_K_M (3B) | ~5 GB file |
-| iPhone 16 Pro Max | 8 GB | Q4_K_M (7B), Q5_K_M (7B) | ~5.5 GB file |
-| iPad Pro M-series | 8-16 GB | Q5_K_M (7B), Q8_0 (7B), Q4_K_M (13B) | ~8 GB file |
+| iPhone 13 Pro / 14 Pro | 6 GB | Q4_K_M (1-3B), Q4_K_S (7B) | about 3.5 GB file |
+| iPhone 15 Pro / 16 Pro | 8 GB | Q4_K_M (7B), Q5_K_M (3B) | about 5 GB file |
+| iPhone 16 Pro Max | 8 GB | Q4_K_M (7B), Q5_K_M (7B) | about 5.5 GB file |
+| iPad Pro M-series | 8-16 GB | Q5_K_M (7B), Q8_0 (7B), Q4_K_M (13B) | about 8 GB file |
 
-**Rule of thumb for device gating:** Model file size + 2GB overhead < total device RAM. Query available RAM with `os_proc_available_memory()` at runtime.
+**General rule for device gating:** Model file size + 2GB overhead < total device RAM. Query the available RAM with `os_proc_available_memory()` at runtime.
 
 **Recommended defaults for the "Featured Models" section:**
-- **Starter:** Phi-3-mini-4k (3.8B, Q4_K_M, ~2.2GB) — works on all supported devices
-- **Standard:** Llama-3.2-3B-Instruct (Q4_K_M, ~1.8GB) — excellent quality/size ratio
-- **Advanced:** Mistral-7B-Instruct (Q4_K_M, ~4.1GB) — 8GB+ devices only
-- **Power:** Qwen2.5-7B-Instruct (Q4_K_M, ~4.4GB) — 8GB+ devices only
+- **Starter:** Phi-3-mini-4k (3.8B, Q4_K_M, about 2.2GB) — operates on all supported devices
+- **Standard:** Llama-3.2-3B-Instruct (Q4_K_M, about 1.8GB) — very good quality/size ratio
+- **Advanced:** Mistral-7B-Instruct (Q4_K_M, about 4.1GB) — 8GB+ devices only
+- **Power:** Qwen2.5-7B-Instruct (Q4_K_M, about 4.4GB) — 8GB+ devices only
 
 ### 5. Conversation history — per-model or global?
 
 **Recommendation: Global conversations, each tagged with the model used.**
 
-- Conversations are stored globally in SwiftData with a `modelId` field.
-- Users can view all conversations or filter by model.
-- If a model is deleted, conversations remain visible (as read-only history) but can't be continued until another model is loaded.
-- **Retention strategy:** Keep all conversations indefinitely (they're just text, very small). Provide a "Delete All Conversations" option in settings and swipe-to-delete on individual conversations.
+- SwiftData stores all conversations globally with a `modelId` field.
+- Users can see all conversations or filter them by model.
+- If the user deletes a model, its conversations stay visible as read-only history. The user cannot continue them until a model is loaded again.
+- **Retention strategy:** Keep all conversations without a time limit. They are only text and use very little space. Supply a "Delete All Conversations" option in settings. Supply swipe-to-delete on each conversation.
 
 ---
 
@@ -935,13 +935,13 @@ Key guidelines to comply with:
 
 ### Phase 1: Core Inference (Weeks 1-3)
 
-**Goal:** llama.cpp running on-device, one bundled test model, basic chat UI that streams tokens.
+**Goal:** Run llama.cpp on the device, with one bundled test model and a basic chat UI that streams tokens.
 
 **Tasks:**
 
 1. **Xcode project setup**
-   - Create new iOS 17+ SwiftUI project
-   - Set up folder structure per the plan above
+   - Create a new iOS 17+ SwiftUI project
+   - Set up the folder structure as the plan above shows
    - Add `.gitignore` for Xcode, Swift, and GGUF files
 
 2. **llama.cpp local package**
@@ -950,111 +950,111 @@ Key guidelines to comply with:
    - Write `Package.swift` with correct source files and Metal linking
    - Write `llama_bridge.h` and `llama_bridge.cpp`
    - Write `LlamaContext.swift` with `AsyncStream` token streaming
-   - Test: build the package standalone, verify Metal acceleration works
+   - Test: build the package standalone, and make sure that Metal acceleration operates
 
 3. **InferenceService**
    - Implement `InferenceService` with `loadModel()`, `unloadModel()`, `generate()`
-   - Implement memory warning observer for automatic unload
-   - Test: load a model, generate text, verify tokens stream
+   - Implement a memory warning observer for automatic unload
+   - Test: load a model, generate text, and make sure that the tokens stream
 
 4. **Basic Chat UI**
    - `ChatView` with message list and input bar
    - `MessageBubble` component (user vs assistant styling)
    - `ChatViewModel` that bridges `InferenceService` to UI
-   - Streaming text display with auto-scroll
+   - Show the streamed text with auto-scroll
    - Stop generation button
 
 5. **Bundle a test model**
-   - Download a small GGUF (~100MB, e.g., TinyLlama-1.1B Q4_K_M) into the project for testing
-   - Add to app bundle for Phase 1 testing only (remove before Phase 2)
+   - Download a small GGUF (about 100MB, e.g., TinyLlama-1.1B Q4_K_M) into the project for tests
+   - Add it to the app bundle for Phase 1 tests only (remove it before Phase 2)
 
-**Gotchas:**
-- llama.cpp Metal shaders need to be bundled. Check that `ggml-metal.metal` is included in the build. You may need to add it as a resource in the SPM target or copy it via a build phase.
-- The first build will be slow (llama.cpp compilation). Subsequent builds are incremental.
-- Test on a **real device** early. Simulator does not support Metal GPU inference.
+**Problems to avoid:**
+- The llama.cpp Metal shaders must be in the bundle. Make sure that `ggml-metal.metal` is included in the build. It is possible that you must add it as a resource in the SPM target, or copy it in a build phase.
+- The first build is slow because it compiles llama.cpp. Later builds are incremental.
+- The Simulator does not support Metal GPU inference. Test on a **real device** early.
 
-**Deliverable:** App launches, loads a bundled model, user can type a message and see streaming AI response.
+**Deliverable:** The app starts and loads a bundled model. The user can type a message and see a streamed AI response.
 
 ---
 
 ### Phase 2: Model Store & Downloads (Weeks 4-6)
 
-**Goal:** Users can browse HF Hub, download GGUF models, manage local storage.
+**Goal:** Users can browse the HF Hub, download GGUF models, and manage local storage.
 
 **Tasks:**
 
 1. **HuggingFaceAPI service**
    - Implement `searchModels()`, `listFiles()`, `downloadURL()`
    - Parse HF API responses into `HFModelInfo` and `HFFileInfo` structs
-   - Handle pagination, error states
+   - Handle pagination and error states
 
 2. **Download service**
    - Implement `DownloadService` with background URLSession
    - Pause/resume/cancel support
    - File move from temp to `Application Support/Models/`
    - Download queue (serial)
-   - Reconnect to in-progress downloads on app relaunch (URLSession background session recreation)
+   - Reconnect to active downloads when the app starts again (make the URLSession background session again)
 
 3. **SwiftData persistence**
    - Define `LocalModel` SwiftData schema
-   - Save model metadata on successful download
-   - Delete model files + records
+   - Save the model metadata when a download completes
+   - Delete model files and records
 
 4. **Model Store UI**
-   - `ModelStoreView` with search bar and results grid
-   - `ModelCardView` showing name, size, quant, download count
-   - `ModelDetailView` with full metadata and download button
-   - `FeaturedModelsSection` with curated picks (loaded from bundled JSON)
+   - `ModelStoreView` with a search bar and a results grid
+   - `ModelCardView` that shows name, size, quant, and download count
+   - `ModelDetailView` with full metadata and a download button
+   - `FeaturedModelsSection` with a curated selection (loaded from bundled JSON)
    - Download progress UI (progress bar, pause/cancel buttons)
 
 5. **Library / Storage UI**
-   - `LibraryView` listing downloaded models
-   - Delete model (swipe or button)
-   - `StorageDashboard` showing per-model and total storage usage
-   - Available device storage display
+   - `LibraryView` that lists the downloaded models
+   - Delete a model (swipe or button)
+   - `StorageDashboard` that shows per-model and total storage usage
+   - Show the available device storage
 
 6. **TabView navigation**
-   - Switch from single-view to TabView (Chat, Models, Settings)
-   - Model selector in Chat view (pick from downloaded models)
+   - Change from a single view to a TabView (Chat, Models, Settings)
+   - Model selector in the Chat view (select from the downloaded models)
 
-**Gotchas:**
-- Background URLSession delegates fire even when the app is suspended. Implement `application(_:handleEventsForBackgroundURLSession:completionHandler:)` in the App Delegate (or use the SwiftUI equivalent `.backgroundTask`) to handle completion.
-- HF API returns all files in a repo. Filter to only show `.gguf` files.
-- Some HF repos have many quantization variants. Group by quantization level in the UI.
-- Test download behavior when the app is killed mid-download. Background URLSession should resume.
+**Problems to avoid:**
+- Background URLSession delegates run even when the app is suspended. Implement `application(_:handleEventsForBackgroundURLSession:completionHandler:)` in the App Delegate (or use the SwiftUI equivalent `.backgroundTask`) to handle completion.
+- The HF API returns all files in a repo. Filter the list to show only `.gguf` files.
+- Some HF repos have many quantization variants. Group them by quantization level in the UI.
+- Test the download behavior when the app stops during a download. The background URLSession must continue the download.
 
-**Deliverable:** Users can browse HF Hub, download models, see them in their library, select a model, and chat with it.
+**Deliverable:** Users can browse the HF Hub, download models, see them in their library, select a model, and chat with it.
 
 ---
 
 ### Phase 3: Polish & Hardening (Weeks 7-9)
 
-**Goal:** Device gating, thermal awareness, conversation history, settings, production UX.
+**Goal:** Add device gating, thermal awareness, conversation history, settings, and a production UX.
 
 **Tasks:**
 
 1. **Device compatibility gating**
    - Query `os_proc_available_memory()` at runtime
-   - Compare against model file size + 2GB overhead
-   - Show warning on `ModelDetailView` if model likely won't fit
-   - Disable download button for models that definitely won't work
+   - Compare the result with the model file size + 2GB overhead
+   - Show a warning on `ModelDetailView` if the model possibly does not fit
+   - Disable the download button for models that cannot operate
 
 2. **Thermal monitoring**
    - Implement `ThermalMonitor`
-   - Show warning banner in Chat when thermal state is `.serious`
-   - Auto-pause generation on `.critical` (or reduce token speed)
-   - Surface suggestion: "Your device is warm. Consider a smaller model."
+   - Show a warning banner in Chat when the thermal state is `.serious`
+   - Automatically pause generation at `.critical` (or decrease the token speed)
+   - Show the suggestion: "Your device is warm. Consider a smaller model."
 
 3. **Conversation history**
    - Define `Conversation` and `Message` SwiftData models
    - Save conversations automatically after each assistant response
    - Conversation list sidebar/drawer in Chat
    - New conversation, delete conversation, rename conversation
-   - Conversation continuity — load previous messages when reopening
+   - Conversation continuity — load the previous messages when the user opens the conversation again
 
 4. **Chat enhancements**
-   - Copy message to clipboard (long press or button)
-   - Regenerate last response
+   - Copy a message to the clipboard (long press or button)
+   - Generate the last response again
    - Clear conversation
    - Per-conversation settings sheet (system prompt, temperature, top-p, context length)
    - Chat template awareness (Llama, ChatML, Phi, Gemma formats)
@@ -1067,69 +1067,69 @@ Key guidelines to comply with:
    - About / licenses (llama.cpp MIT, HF attribution)
 
 6. **Error handling & edge cases**
-   - Model file corruption detection (basic: check file size matches expected)
-   - Network error handling in Model Store (retry, offline state)
-   - Graceful handling of model load failure
-   - App lifecycle: save state on background, restore on foreground
+   - Find model file corruption (basic: make sure that the file size is equal to the expected size)
+   - Network error handling in the Model Store (retry, offline state)
+   - Handle a model load failure without a crash
+   - App lifecycle: save the state when the app goes to the background, restore it in the foreground
 
-**Gotchas:**
-- `os_proc_available_memory()` returns available memory *right now*, which varies. Use it as a guideline, not a hard gate.
-- Different model families need different chat templates. Build a registry mapping model family → template formatter. Get this wrong and models will produce garbled output.
-- Thermal state `.critical` means iOS may kill the app. Take it seriously.
+**Problems to avoid:**
+- `os_proc_available_memory()` returns the available memory *at that moment*, and this value changes. Use it as a guide, not a hard limit.
+- If the chat template is not correct, the models will make unreadable output. Different model families need different chat templates. Make a registry that maps each model family to a template formatter.
+- Thermal state `.critical` means that iOS can stop the app. This is an important risk.
 
-**Deliverable:** Full-featured app with conversation history, device awareness, settings, polished UX.
+**Deliverable:** A full-featured app with conversation history, device awareness, settings, and a polished UX.
 
 ---
 
 ### Phase 4: App Store Prep (Weeks 10-11)
 
-**Goal:** TestFlight, App Store submission, metadata, review preparation.
+**Goal:** Complete TestFlight, App Store submission, metadata, and review preparation.
 
 **Tasks:**
 
 1. **App Store metadata**
    - App name: "Hearth AI"
    - Subtitle: "Private AI Chat, On-Device"
-   - Description highlighting privacy, no cloud, no data collection
+   - Description that shows the privacy points: no cloud, no data collection
    - Keywords: AI, chat, private, offline, local, LLM
-   - Screenshots (iPhone 15 Pro, iPhone 16 Pro Max sizes minimum)
+   - Screenshots (iPhone 15 Pro and iPhone 16 Pro Max sizes at minimum)
    - App icon (warm, hearth/fireplace aesthetic)
 
 2. **Privacy & compliance**
    - Privacy Nutrition Label: "Data Not Collected" (no analytics, no tracking)
-   - No App Tracking Transparency prompt needed (no tracking)
-   - Privacy Policy URL (can be a simple page: "Hearth AI collects no data")
-   - Export compliance: llama.cpp uses standard algorithms, likely qualifies for encryption exemption (ERN). File the self-classification in App Store Connect.
+   - No App Tracking Transparency prompt is necessary (no tracking)
+   - Privacy Policy URL (a simple page is enough: "Hearth AI collects no data")
+   - Export compliance: llama.cpp uses standard algorithms and probably qualifies for the encryption exemption (ERN). File the self-classification in App Store Connect.
 
 3. **TestFlight**
    - Internal testing group
    - Test on: iPhone 13 Pro, iPhone 15 Pro, iPhone 16 Pro (different RAM tiers)
    - Test scenarios:
      - Fresh install → download model → chat
-     - Background download → app killed → relaunch (download should continue)
+     - Background download → app stopped → relaunch (the download must continue)
      - Memory pressure during inference
-     - Thermal throttling during extended generation
+     - Thermal throttling during long generation
      - Storage full scenario
-     - Airplane mode with downloaded models (should work fully)
+     - Airplane mode with downloaded models (the app must operate fully)
 
 4. **Review preparation**
-   - Review notes explaining GGUF files are data, not code
-   - Demo account not needed (no accounts in the app)
-   - Ensure app is functional on first launch (even without models — show onboarding)
-   - Verify no private API usage
+   - Review notes that show that GGUF files are data, not code
+   - No demo account is necessary (no accounts in the app)
+   - Make sure that the app operates at the first launch (also without models — show onboarding)
+   - Make sure that the app uses no private API
 
 5. **Performance optimization**
    - Profile with Instruments: Metal System Trace, Time Profiler
-   - Ensure Metal GPU inference is actually being used (not CPU fallback)
-   - Optimize ScrollView performance for long conversations (LazyVStack)
+   - Make sure that the app uses Metal GPU inference (not the CPU fallback)
+   - Optimize the ScrollView performance for long conversations (LazyVStack)
    - Test with large models (7B) for memory stability
 
-**Gotchas:**
-- First submission of an app like this may get additional scrutiny. Be prepared for reviewer questions.
-- Apple may flag the app for review if it downloads files >200MB over cellular. Consider adding a WiFi-only download option or warning.
-- The app binary itself should be small (<50MB). All the weight is in downloaded models.
+**Problems to avoid:**
+- The first submission of an app of this type can get more examination. Be prepared for questions from the reviewer.
+- Apple can flag the app for review if it downloads files of more than 200MB on a cellular connection. Add a WiFi-only download option or a warning.
+- The app binary itself must be small (less than 50MB). The downloaded models contain almost all the data.
 
-**Deliverable:** App on TestFlight, then submitted to App Store.
+**Deliverable:** The app is on TestFlight, then submitted to the App Store.
 
 ---
 
@@ -1137,25 +1137,25 @@ Key guidelines to comply with:
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|------|-----------|--------|------------|
-| 1 | **llama.cpp SPM build breaks on update** | High | Medium | Pin to a specific llama.cpp commit. Update deliberately. Keep a working reference build. |
-| 2 | **App rejected for "downloading executable code"** | Medium | High | Prepare clear review notes. GGUF files are weight data, not code. Reference precedent (other GGUF apps exist on App Store). |
-| 3 | **OOM crash on large models** | High | High | Device gating, `os_proc_available_memory()` checks before load, memory warning observer to unload. Conservative RAM estimates. |
-| 4 | **Metal shader missing from bundle** | Medium | High | Verify `ggml-metal.metal` is included in the build. Test on device (not simulator). Add build-phase copy if SPM doesn't handle it. |
-| 5 | **Background download reliability** | Medium | Medium | Use proper background URLSession. Handle `handleEventsForBackgroundURLSession`. Test app-killed-during-download scenario. |
-| 6 | **HF API rate limiting** | Low | Medium | Cache search results. Add optional HF token support. Implement exponential backoff. |
-| 7 | **Thermal throttling degrades UX** | Medium | Medium | Monitor thermal state. Warn users. Suggest smaller models. Auto-reduce generation speed at `.serious`. |
-| 8 | **Chat template mismatches** | High | Medium | Build template registry from day one. Test each featured model with its correct template. Default to ChatML if unknown. |
-| 9 | **Model file corruption** | Low | Low | Verify file size after download. Checksum validation if HF provides SHA256 (they do in the API). Re-download option. |
-| 10 | **llama.cpp source files change between versions** | High | Medium | Audit llama.cpp CMakeLists.txt when updating. Consider a script that generates the SPM source file list from CMakeLists.txt. |
+| 1 | **llama.cpp SPM build breaks on update** | High | Medium | Pin to a specific llama.cpp commit. Update with care. Keep a reference build that operates. |
+| 2 | **App rejected for "downloading executable code"** | Medium | High | Prepare clear review notes. GGUF files are weight data, not code. Refer to precedent (other GGUF apps are on the App Store). |
+| 3 | **OOM crash on large models** | High | High | Use device gating and `os_proc_available_memory()` checks before load. Use a memory warning observer to unload. Use conservative RAM estimates. |
+| 4 | **Metal shader missing from bundle** | Medium | High | Make sure that `ggml-metal.metal` is included in the build. Test on a device (not the simulator). Add a build-phase copy if SPM does not include the file. |
+| 5 | **Background download reliability** | Medium | Medium | Use a correct background URLSession. Handle `handleEventsForBackgroundURLSession`. Test the scenario where the app stops during a download. |
+| 6 | **HF API rate limiting** | Low | Medium | Cache the search results. Add optional HF token support. Implement exponential backoff. |
+| 7 | **Thermal throttling degrades UX** | Medium | Medium | Monitor the thermal state. Warn users. Suggest smaller models. Automatically decrease the generation speed at `.serious`. |
+| 8 | **Chat template mismatches** | High | Medium | Make the template registry at the start. Test each featured model with its correct template. Use ChatML as the default if the template is unknown. |
+| 9 | **Model file corruption** | Low | Low | Make sure that the file size is correct after download. Validate the checksum if HF supplies a SHA256 (the API supplies it). Give a re-download option. |
+| 10 | **llama.cpp source files change between versions** | High | Medium | Examine the llama.cpp CMakeLists.txt when you update. A script can make the SPM source file list from CMakeLists.txt. |
 
 ---
 
 ## Summary
 
-Hearth AI is architecturally straightforward: a SwiftUI MVVM app with a local Swift Package wrapping llama.cpp, SwiftData for persistence, and background URLSession for downloads. The complexity lives in three areas:
+The architecture of Hearth AI is simple: a SwiftUI MVVM app with a local Swift Package around llama.cpp, SwiftData for persistence, and a background URLSession for downloads. The complexity is in three areas:
 
-1. **Getting llama.cpp to build and run correctly in SPM** — fiddly but solvable, and the reference projects (LLM Farm) prove it works.
-2. **Memory management** — keeping models warm while respecting iOS memory limits requires careful lifecycle management.
-3. **Chat template correctness** — different model families need different prompt formatting, and getting this wrong produces bad output.
+1. **Build and run llama.cpp correctly in SPM** — difficult but possible, and the reference projects (LLM Farm) show that it operates.
+2. **Memory management** — the app must keep models loaded and also obey the iOS memory limits. This needs careful lifecycle management.
+3. **Chat template correctness** — different model families need different prompt formats. An incorrect format makes bad output.
 
-The four-phase plan gets to a working chat app in ~3 weeks, a full-featured app in ~9 weeks, and App Store in ~11 weeks. Each phase has a concrete deliverable that can be tested independently.
+The four-phase plan gives a chat app that operates in about 3 weeks, a full-featured app in about 9 weeks, and an App Store submission in about 11 weeks. Each phase has a concrete deliverable that you can test independently.
