@@ -177,7 +177,8 @@ struct FileRow: View {
             await ModelDeletion.delete(
                 model,
                 context: modelContext,
-                inferenceService: inferenceService
+                inferenceService: inferenceService,
+                downloadService: downloadService
             )
         }
     }

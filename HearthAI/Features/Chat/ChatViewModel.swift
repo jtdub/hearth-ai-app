@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 @Observable
@@ -72,7 +73,7 @@ final class ChatViewModel {
                 await inferenceService.cancelGeneration()
                 break
             }
-            await timeoutState.recordToken()
+            timeoutState.recordToken()
             streamingText += token
 
             if trimStopTokens(stopTokens) {
@@ -83,7 +84,7 @@ final class ChatViewModel {
 
         timeoutTask.cancel()
         cleanStopTokens(stopTokens)
-        return await timeoutState.didTimeout
+        return timeoutState.didTimeout
     }
 
     private func makeTimeoutTask(
@@ -93,7 +94,7 @@ final class ChatViewModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(5))
                 guard !Task.isCancelled else { return }
-                let info = await state.currentState()
+                let info = state.currentState()
                 let elapsed = Date().timeIntervalSince(
                     info.lastTokenTime
                 )
@@ -101,7 +102,7 @@ final class ChatViewModel {
                     ? Constants.interTokenTimeoutSeconds
                     : Constants.firstTokenTimeoutSeconds
                 if elapsed > limit {
-                    await state.markTimeout()
+                    state.markTimeout()
                     await service.cancelGeneration()
                     return
                 }
@@ -414,23 +415,39 @@ struct ChatMessage: Identifiable {
 }
 
 /// Tracks token arrival times for the inference watchdog.
-actor TimeoutState {
-    private var lastTokenTime = Date()
-    private var receivedFirstToken = false
-    private(set) var didTimeout = false
+/// A lock keeps access synchronous, so the streaming loop
+/// does not suspend for each token.
+final class TimeoutState: Sendable {
+    private struct State {
+        var lastTokenTime = Date()
+        var receivedFirstToken = false
+        var didTimeout = false
+    }
+
+    private let state = OSAllocatedUnfairLock(
+        initialState: State()
+    )
+
+    var didTimeout: Bool {
+        state.withLock { $0.didTimeout }
+    }
 
     func recordToken() {
-        lastTokenTime = Date()
-        receivedFirstToken = true
+        state.withLock {
+            $0.lastTokenTime = Date()
+            $0.receivedFirstToken = true
+        }
     }
 
     func currentState() -> (
         lastTokenTime: Date, receivedFirstToken: Bool
     ) {
-        (lastTokenTime, receivedFirstToken)
+        state.withLock {
+            ($0.lastTokenTime, $0.receivedFirstToken)
+        }
     }
 
     func markTimeout() {
-        didTimeout = true
+        state.withLock { $0.didTimeout = true }
     }
 }

@@ -4,6 +4,7 @@ import SwiftData
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(InferenceService.self) private var inferenceService
+    @Environment(DownloadService.self) private var downloadService
     @Query(sort: \LocalModel.downloadedAt, order: .reverse) private var models: [LocalModel]
     @State private var modelToDelete: LocalModel?
 
@@ -131,7 +132,8 @@ struct LibraryView: View {
             await ModelDeletion.delete(
                 model,
                 context: modelContext,
-                inferenceService: inferenceService
+                inferenceService: inferenceService,
+                downloadService: downloadService
             )
             modelToDelete = nil
         }
@@ -183,5 +185,6 @@ struct ModelRow: View {
 #Preview {
     LibraryView()
         .environment(InferenceService())
+        .environment(DownloadService())
         .modelContainer(for: LocalModel.self, inMemory: true)
 }

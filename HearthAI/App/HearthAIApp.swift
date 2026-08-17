@@ -148,7 +148,13 @@ struct HearthAIApp: App {
             at: modelsDir,
             includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
             options: [.skipsHiddenFiles]
-        ) else { return [] }
+        ) else {
+            // Enumeration failed — fall back to the saved
+            // records so auto-load still works.
+            return (try? context.fetch(
+                FetchDescriptor<LocalModel>()
+            )) ?? []
+        }
 
         var registeredCount = 0
 
@@ -282,6 +288,18 @@ struct HearthAIApp: App {
 
         let fileURL = FileManager.modelsDirectory
             .appendingPathComponent(localPath)
+
+        // Validate now, while the user can retry the download.
+        do {
+            try InferenceService.validateModelFile(
+                at: fileURL, expected: info.fileSize
+            )
+        } catch {
+            try? FileManager.default.removeItem(at: fileURL)
+            info.status = .failed(error.localizedDescription)
+            return
+        }
+
         let actualSize: Int64
         if let attrs = try? FileManager.default.attributesOfItem(
             atPath: fileURL.path

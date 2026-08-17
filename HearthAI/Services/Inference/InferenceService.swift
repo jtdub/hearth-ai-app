@@ -58,13 +58,15 @@ final class InferenceService {
             )
         }
 
+        // Validate before unloading so a bad file does not
+        // tear down a model that is already loaded.
+        let path = model.absolutePath
+        try Self.validateModelFile(at: path, expected: model.fileSizeBytes)
+
         await unloadModel()
         isLoading = true
         loadError = nil
         defer { isLoading = false }
-
-        let path = model.absolutePath
-        try validateModelFile(at: path, expected: model.fileSizeBytes)
 
         context = try LlamaContext(modelPath: path.path, contextSize: 2048, gpuLayers: -1)
         loadedModelId = model.id
@@ -80,6 +82,7 @@ final class InferenceService {
         context = nil
         loadedModelId = nil
         isGenerating = false
+        loadError = nil
     }
 
     var isModelLoaded: Bool {
@@ -121,7 +124,7 @@ final class InferenceService {
 
     // MARK: - File Validation
 
-    private func validateModelFile(at url: URL, expected: Int64) throws {
+    static func validateModelFile(at url: URL, expected: Int64) throws {
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw InferenceError.modelFileNotFound(url.lastPathComponent)
         }
@@ -142,10 +145,10 @@ final class InferenceService {
             throw InferenceError.modelFileCorrupted(url.lastPathComponent)
         }
         defer { try? handle.close() }
-        let magic = handle.readData(ofLength: 4)
         // GGUF magic: 0x47 0x47 0x55 0x46 ("GGUF")
         let ggufMagic = Data([0x47, 0x47, 0x55, 0x46])
-        if magic != ggufMagic {
+        guard let magic = try? handle.read(upToCount: 4),
+              magic == ggufMagic else {
             throw InferenceError.modelFileCorrupted(url.lastPathComponent)
         }
     }

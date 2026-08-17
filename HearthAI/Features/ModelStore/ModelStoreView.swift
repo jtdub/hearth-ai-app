@@ -257,6 +257,17 @@ struct DownloadProgressRow: View {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption)
                     .foregroundStyle(.red)
+                HStack {
+                    Spacer()
+                    Button("Retry") {
+                        downloadService.resumeDownload(id: download.id)
+                    }
+                    .font(.caption)
+                    Button("Dismiss") {
+                        downloadService.removeDownload(id: download.id)
+                    }
+                    .font(.caption)
+                }
             }
         }
         .padding(.vertical, 4)
